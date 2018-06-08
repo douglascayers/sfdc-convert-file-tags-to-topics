@@ -10,6 +10,18 @@ Convert file tags to topics to use [Summer '18 Topics component](https://release
 
 Inspired by [Jos Dofferhoff](https://success.salesforce.com/_ui/core/chatter/groups/GroupProfilePage?g=0F93A0000009SE1&fId=0D53A00003f1lod).
 
+Files have a unique sharing model as compared to other records.
+A user can query for files (ContentDocument or ContentVersion) but will only get results back that are
+explicitly shared to the user or a group the user belongs to. For best results, the user must query
+through the ContentDocumentLink object filtering by the records that file is shared with.
+This is true regardless if the user is an admin with "View All Data" or "Modify All Data".
+This brings up interesting scenarios to try and handle that are non-trivial.
+
+Use cases:
+* Convert tags to topics for files that are shared to libraries
+* Convert tags to topics for files that are shared to records
+* Convert tags to topics for a single file
+
 
 Credits
 =======

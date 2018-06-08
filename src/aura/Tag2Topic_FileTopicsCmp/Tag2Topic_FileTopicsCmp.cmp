@@ -1,0 +1,21 @@
+<aura:component controller="Tag2Topic_FileTopicsController" implements="flexipage:availableForRecordHome,force:hasRecordId">
+
+    <aura:attribute name="recordId" type="ID"/>
+
+    <aura:attribute name="topicAssignments" type="TopicAssignment[]"/>
+
+    <aura:handler name="init" action="{!c.doInit}" value="{!this}"/>
+
+    <lightning:card title="Topics">
+
+        <div class="slds-grid">
+            <aura:iteration var="ta" items="{!v.topicAssignments}">
+                <div class="slds-col slds-box slds-box_x-small slds-m-around_x-small">
+                    <aura:text value="{!ta.Topic.Name}"/>
+                </div>
+            </aura:iteration>
+        </div>
+
+    </lightning:card>
+
+</aura:component>
