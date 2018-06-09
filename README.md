@@ -22,6 +22,9 @@ Use cases:
 * Convert tags to topics for files that are shared to records
 * Convert tags to topics for a single file
 
+To receive conversion error emails, add yourself as an [Apex Exception Email Recipient](https://help.salesforce.com/articleView?id=code_apex_exceptions.htm&type=5).
+Or, you can periodically monitor the **Tag2Topic Log** object for new records.
+
 
 Credits
 =======
