@@ -4,16 +4,18 @@
  * GitHub: https://github.com/douglascayers/sfdc-convert-documents-to-files
  * License: BSD 3-Clause License
  */
-public without sharing class Tag2Topic_LibraryFilesBatchable implements Database.Batchable<SObject> {
+public without sharing class Tag2Topic_LibraryFilesBatchable implements Database.Batchable<ContentDocumentLink> {
 
-    public Database.QueryLocator start( Database.BatchableContext context ) {
+    // Known Issue have to use Iterable instead of Database.QueryLocator:
+    // https://success.salesforce.com/issues_view?id=a1p3A0000018COxQAM
+    public Iterable<ContentDocumentLink> start( Database.BatchableContext context ) {
 
         System.debug( 'Tag2Topic_LibraryFilesBatchable.start: ' + context );
 
-        // IN order to query for files not explicitly shared to a user,
+        // In order to query for files not explicitly shared to a user,
         // then we must go through content document link and find them
         // shared to records that the user has access to.
-        return Database.getQueryLocator([
+        return [
             SELECT
                 Id,
                 ContentDocumentId,
@@ -31,7 +33,7 @@ public without sharing class Tag2Topic_LibraryFilesBatchable implements Database
                     OR
                     ContentDocument.LatestPublishedVersion.Have_Converted_Tags_to_Topics__c = false
                 )
-        ]);
+        ];
     }
 
     public void execute( Database.BatchableContext context, List<ContentDocumentLink> cdls ) {
@@ -58,18 +60,24 @@ public without sharing class Tag2Topic_LibraryFilesBatchable implements Database
                 System.debug( cv );
                 System.debug( '---' );
 
-                filesMap.put( cv.Id, cv );
+                if ( String.isNotBlank( cv.TagCsv ) ) {
+                    filesMap.put( cv.Id, cv );
+                }
 
             }
 
-            Tag2Topic_ConversionService service = new Tag2Topic_ConversionService();
-            service.convertTagsToTopics( filesMap.values() );
+            if ( filesMap.size() > 0 ) {
+
+                Tag2Topic_ConversionService service = new Tag2Topic_ConversionService();
+                service.convertTagsToTopics( filesMap.values() );
+
+            }
 
         } catch ( Exception e ) {
 
             Database.rollback( sp );
 
-            System.debug( LoggingLevel.ERROR, e );
+            System.debug( LoggingLevel.ERROR, e.getMessage() + ' : ' + e.getStackTraceString() );
 
             // todo how do we want to report this back to user?
 
