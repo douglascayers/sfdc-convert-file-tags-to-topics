@@ -43,6 +43,9 @@
     </types>
     <types>
         <members>Tag2Topic_Log__c.All</members>
+        <members>Tag2Topic_Log__c.Converted</members>
+        <members>Tag2Topic_Log__c.Errors</members>
+        <members>Tag2Topic_Log__c.Skipped</members>
         <name>ListView</name>
     </types>
     <types>

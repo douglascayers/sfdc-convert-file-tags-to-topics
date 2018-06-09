@@ -161,6 +161,54 @@
         <filterScope>Everything</filterScope>
         <label>All</label>
     </listViews>
+    <listViews>
+        <fullName>Converted</fullName>
+        <columns>NAME</columns>
+        <columns>Job_ID__c</columns>
+        <columns>File_ID__c</columns>
+        <columns>Status__c</columns>
+        <columns>Summary__c</columns>
+        <columns>Log_Time__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>Status__c</field>
+            <operation>equals</operation>
+            <value>CONVERTED</value>
+        </filters>
+        <label>Converted</label>
+    </listViews>
+    <listViews>
+        <fullName>Errors</fullName>
+        <columns>NAME</columns>
+        <columns>Job_ID__c</columns>
+        <columns>File_ID__c</columns>
+        <columns>Status__c</columns>
+        <columns>Summary__c</columns>
+        <columns>Log_Time__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>Status__c</field>
+            <operation>equals</operation>
+            <value>ERROR</value>
+        </filters>
+        <label>Errors</label>
+    </listViews>
+    <listViews>
+        <fullName>Skipped</fullName>
+        <columns>NAME</columns>
+        <columns>Job_ID__c</columns>
+        <columns>File_ID__c</columns>
+        <columns>Status__c</columns>
+        <columns>Summary__c</columns>
+        <columns>Log_Time__c</columns>
+        <filterScope>Everything</filterScope>
+        <filters>
+            <field>Status__c</field>
+            <operation>equals</operation>
+            <value>SKIPPED</value>
+        </filters>
+        <label>Skipped</label>
+    </listViews>
     <nameField>
         <displayFormat>Log-{000000}</displayFormat>
         <label>Log Number</label>
