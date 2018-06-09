@@ -3,13 +3,39 @@
     <types>
         <members>Tag2Topic_ConversionService</members>
         <members>Tag2Topic_ConversionServiceTest</members>
+        <members>Tag2Topic_EmailService</members>
+        <members>Tag2Topic_EmailServiceTest</members>
         <members>Tag2Topic_LibraryFilesBatchable</members>
         <members>Tag2Topic_LibraryFilesBatchableTest</members>
+        <members>Tag2Topic_LoggerService</members>
+        <members>Tag2Topic_LoggerServiceTest</members>
         <name>ApexClass</name>
     </types>
     <types>
         <members>ContentVersion.Have_Converted_Tags_to_Topics__c</members>
+        <members>Tag2Topic_Log__c.Detail__c</members>
+        <members>Tag2Topic_Log__c.File_ID__c</members>
+        <members>Tag2Topic_Log__c.Job_ID__c</members>
+        <members>Tag2Topic_Log__c.Log_Time__c</members>
+        <members>Tag2Topic_Log__c.Status__c</members>
+        <members>Tag2Topic_Log__c.Summary__c</members>
         <name>CustomField</name>
+    </types>
+    <types>
+        <members>Tag2Topic_Log__c</members>
+        <name>CustomObject</name>
+    </types>
+    <types>
+        <members>Tag2Topic_Log__c</members>
+        <name>CustomTab</name>
+    </types>
+    <types>
+        <members>Tag2Topic_Log__c-Tag2Topic Log Layout</members>
+        <name>Layout</name>
+    </types>
+    <types>
+        <members>Tag2Topic_Log__c.All</members>
+        <name>ListView</name>
     </types>
     <types>
         <members>Convert_File_Tags_to_Topics</members>

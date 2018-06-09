@@ -4,7 +4,7 @@
  * GitHub: https://github.com/douglascayers/sfdc-convert-file-tags-to-topics
  * License: BSD 3-Clause License
  */
-public class Tag2Topic_ConversionService {
+public without sharing class Tag2Topic_ConversionService {
 
     public void convertTagsToTopics( List<ContentVersion> files ) {
 
