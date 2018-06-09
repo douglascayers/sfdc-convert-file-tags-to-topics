@@ -3,16 +3,17 @@
     <types>
         <members>Tag2Topic_ConversionService</members>
         <members>Tag2Topic_ConversionServiceTest</members>
-        <members>Tag2Topic_FileTopicsController</members>
+        <members>Tag2Topic_LibraryFilesBatchable</members>
+        <members>Tag2Topic_LibraryFilesBatchableTest</members>
         <name>ApexClass</name>
-    </types>
-    <types>
-        <members>Tag2Topic_FileTopicsCmp</members>
-        <name>AuraDefinitionBundle</name>
     </types>
     <types>
         <members>ContentVersion.Have_Converted_Tags_to_Topics__c</members>
         <name>CustomField</name>
+    </types>
+    <types>
+        <members>Convert_File_Tags_to_Topics</members>
+        <name>PermissionSet</name>
     </types>
     <version>43.0</version>
 </Package>
