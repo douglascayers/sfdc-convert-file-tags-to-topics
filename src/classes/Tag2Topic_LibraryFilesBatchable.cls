@@ -10,6 +10,9 @@ public without sharing class Tag2Topic_LibraryFilesBatchable implements Database
 
         System.debug( 'Tag2Topic_LibraryFilesBatchable.start: ' + context );
 
+        // IN order to query for files not explicitly shared to a user,
+        // then we must go through content document link and find them
+        // shared to records that the user has access to.
         return Database.getQueryLocator([
             SELECT
                 Id,
@@ -39,7 +42,11 @@ public without sharing class Tag2Topic_LibraryFilesBatchable implements Database
 
         try {
 
-            List<ContentVersion> cvs = new List<ContentVersion>();
+            // Because we queried for content document links and not the files directly,
+            // then we actually may get the same file reference multiple times, once per
+            // every entity the file is shared to. Therefore, we should filter down to
+            // the unique files seen in the batch of links given to us.
+            Map<ID, ContentVersion> filesMap = new Map<ID, ContentVersion>();
 
             for ( ContentDocumentLink cdl : cdls ) {
 
@@ -51,12 +58,12 @@ public without sharing class Tag2Topic_LibraryFilesBatchable implements Database
                 System.debug( cv );
                 System.debug( '---' );
 
-                cvs.add( cv );
+                filesMap.put( cv.Id, cv );
 
             }
 
             Tag2Topic_ConversionService service = new Tag2Topic_ConversionService();
-            service.convertTagsToTopics( cvs );
+            service.convertTagsToTopics( filesMap.values() );
 
         } catch ( Exception e ) {
 
