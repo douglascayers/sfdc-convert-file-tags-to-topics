@@ -12,6 +12,10 @@
         <name>ApexClass</name>
     </types>
     <types>
+        <members>Tag2Topic_Log__c.Default_Compact_Layout</members>
+        <name>CompactLayout</name>
+    </types>
+    <types>
         <members>ContentVersion.Have_Converted_Tags_to_Topics__c</members>
         <members>Tag2Topic_Log__c.Detail__c</members>
         <members>Tag2Topic_Log__c.File_ID__c</members>
@@ -28,6 +32,10 @@
     <types>
         <members>Tag2Topic_Log__c</members>
         <name>CustomTab</name>
+    </types>
+    <types>
+        <members>Tag2Topic_Log_Record_Page</members>
+        <name>FlexiPage</name>
     </types>
     <types>
         <members>Tag2Topic_Log__c-Tag2Topic Log Layout</members>
