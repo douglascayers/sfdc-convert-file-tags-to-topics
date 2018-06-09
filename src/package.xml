@@ -16,7 +16,6 @@
         <name>CompactLayout</name>
     </types>
     <types>
-        <members>ContentVersion.Have_Converted_Tags_to_Topics__c</members>
         <members>Tag2Topic_Log__c.Detail__c</members>
         <members>Tag2Topic_Log__c.File_ID__c</members>
         <members>Tag2Topic_Log__c.Job_ID__c</members>
@@ -52,5 +51,5 @@
         <members>Convert_File_Tags_to_Topics</members>
         <name>PermissionSet</name>
     </types>
-    <version>43.0</version>
+    <version>42.0</version>
 </Package>

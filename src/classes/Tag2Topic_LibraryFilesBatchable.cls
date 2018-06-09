@@ -64,12 +64,6 @@ public without sharing class Tag2Topic_LibraryFilesBatchable implements Database
                     LinkedEntityId IN (
                         SELECT Id FROM ContentWorkspace
                     )
-                    AND
-                    (
-                        ContentDocument.LatestPublishedVersion.Have_Converted_Tags_to_Topics__c = null
-                        OR
-                        ContentDocument.LatestPublishedVersion.Have_Converted_Tags_to_Topics__c = false
-                    )
             ];
 
         } else {
@@ -84,12 +78,6 @@ public without sharing class Tag2Topic_LibraryFilesBatchable implements Database
                     ContentDocumentLink
                 WHERE
                     LinkedEntityId IN :this.linkedEntityIds
-                    AND
-                    (
-                        ContentDocument.LatestPublishedVersion.Have_Converted_Tags_to_Topics__c = null
-                        OR
-                        ContentDocument.LatestPublishedVersion.Have_Converted_Tags_to_Topics__c = false
-                    )
             ];
 
         }
