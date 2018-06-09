@@ -10,46 +10,100 @@ public class Tag2Topic_ConversionService {
 
         System.debug( 'Tag2Topic_ConversionService.convertTagsToTopics' );
 
-        Map<ID, Set<String>> documentIdToTopicNamesMap = getDocumentIdToTopicNamesMap( files );
+        // topic already assigned to files
+        // need to identify which file tags aren't already assigned as topics
+        Map<ID, Set<String>> contentDocumentIdToTopicNamesMap = getTopicNamesByContentDocumentIdMap( files );
+
+        // all the topics that match to file tags
+        // use this map to lookup the topic to assign to a file
+        // once identiy which tags/topics aren't already assigned to the files
         Map<String, Topic> tagNameToTopicMap = getOrCreateTopicByTagNameMap( files );
 
-        // todo assign topics to files
+        List<TopicAssignment> topicsToAssign = new List<TopicAssignment>();
+
+        for ( ContentVersion file : files ) {
+
+            System.debug( file );
+
+            if ( String.isNotBlank( file.TagCsv ) ) {
+
+                // remember, the topic names are lowercase so we can do case-insensitive contains
+                Set<String> assignedTopicNames = contentDocumentIdToTopicNamesMap.get( file.ContentDocumentId );
+
+                for ( String tagName : file.TagCsv.split( ',' ) ) {
+
+                    String lowerTagName = tagName.toLowerCase();
+
+                    if ( assignedTopicNames == null || !assignedTopicNames.contains( lowerTagName ) ) {
+                        System.debug( 'need to assign topic: ' + lowerTagName );
+                        topicsToAssign.add( new TopicAssignment(
+                            EntityId = file.ContentDocumentId,
+                            TopicId = tagNameToTopicMap.get( lowerTagName ).Id
+                        ));
+                    } else {
+                        System.debug( 'already assigned topic: ' + lowerTagName );
+                    }
+
+                }
+
+            } else {
+
+                System.debug( 'skipping file, not assigned any tags' );
+
+            }
+
+        }
+
+        System.debug( 'topicsToAssign=' + topicsToAssign );
+
+        if ( topicsToAssign.size() > 0 ) {
+            insert topicsToAssign;
+        }
 
     }
 
     // --------------------------------------------
 
-    private Map<ID, Set<String>> getDocumentIdToTopicNamesMap( List<ContentVersion> files ) {
+    /**
+     * Use this method to determine which topics have been assigned to the files.
+     *
+     * Returns a map whose keys are ContentDocumentIds and values are
+     * set of already assigned topic names (lowercase).
+     */
+    private Map<ID, Set<String>> getTopicNamesByContentDocumentIdMap( List<ContentVersion> files ) {
 
-        Set<ID> documentIds = getContentDocumentIds( files );
+        Set<ID> contentDocumentIds = getContentDocumentIds( files );
 
         // topics that are already assigned to documents
         // if tag name matches a topic name in this map, then don't redundantly assign topic to file
-        Map<ID, Set<String>> documentIdToTopicNamesMap = new Map<ID, Set<String>>();
+        Map<ID, Set<String>> contentDocumentIdToTopicNamesMap = new Map<ID, Set<String>>();
 
         for ( List<TopicAssignment> assignments : [
                 SELECT TopicId, Topic.Name, EntityId
                 FROM TopicAssignment
-                WHERE EntityId IN :documentIds
+                WHERE EntityId IN :contentDocumentIds
         ] ) {
             for ( TopicAssignment assignment : assignments ) {
-                Set<String> topicNames = documentIdToTopicNamesMap.get( assignment.EntityId );
+                Set<String> topicNames = contentDocumentIdToTopicNamesMap.get( assignment.EntityId );
                 if ( topicNames == null ) {
                     topicNames = new Set<String>();
-                    documentIdToTopicNamesMap.put( assignment.EntityId, topicNames );
+                    contentDocumentIdToTopicNamesMap.put( assignment.EntityId, topicNames );
                 }
                 topicNames.add( assignment.Topic.Name.toLowerCase() );
             }
         }
 
-        return documentIdToTopicNamesMap;
+        return contentDocumentIdToTopicNamesMap;
     }
 
     /**
-     * Returns a map whose keys are tag names assigned to the given files,
+     * Use this method to determine (tagName => topic) among the given files.
+     * This lets you know which tags do or do not need to be created as topics.
+     *
+     * Returns a map whose keys are tag names (lowercase) assigned to the given files,
      * and the map values are the Topic records with the same tag names.
      *
-     * If a Topic does not exist with same name as a tag,
+     * If a Topic does not exist with same name as a tag (case-insensitive),
      * then this method creates new Topics.
      *
      * The returned map will have an entry for each tag among the files.
@@ -77,6 +131,12 @@ public class Tag2Topic_ConversionService {
         return topicByTagNameMap;
     }
 
+    /**
+     * Returns a map whose keys are the tag names (lowercase) assigned to the given files
+     * and whose values are the topic records with those tag names.
+     *
+     * A map entry only exists if a topic record exists for a tag name.
+     */
     private Map<String, Topic> getTopicByTagNameMap( List<ContentVersion> files ) {
 
         Set<String> tagNames = getFileTagNames( files );
@@ -99,17 +159,23 @@ public class Tag2Topic_ConversionService {
         return topicsByTagNameMap;
     }
 
+    /**
+     * Returns the unique set of ContentDocumentIds from the given files.
+     */
     private Set<ID> getContentDocumentIds( List<ContentVersion> files ) {
 
-        Set<ID> documentIds = new Set<ID>();
+        Set<ID> contentDocumentIds = new Set<ID>();
 
         for ( ContentVersion file : files ) {
-            documentIds.add( file.ContentDocumentId );
+            contentDocumentIds.add( file.ContentDocumentId );
         }
 
-        return documentIds;
+        return contentDocumentIds;
     }
 
+    /**
+     * Returns the unique set of tags assigned to the given files.
+     */
     private Set<String> getFileTagNames( List<ContentVersion> files ) {
 
         Set<String> tagNames = new Set<String>();
