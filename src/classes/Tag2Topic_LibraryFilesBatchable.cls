@@ -6,6 +6,30 @@
  */
 public without sharing class Tag2Topic_LibraryFilesBatchable implements Database.Batchable<ContentDocumentLink> {
 
+    private Set<ID> linkedEntityIds { get; set; }
+
+    /**
+     * Default Constructor
+     *
+     * Files shared to libraries will have their
+     * tags converted and assigned as topics.
+     */
+    public Tag2Topic_LibraryFilesBatchable() {
+        this( null );
+    }
+
+    /**
+     * Constructor
+     *
+     * @param linkedEntityIds
+     *      To scope which files get converted.
+     *      Only files shared to these entities will have their
+     *      tags converted and assigned as topics.
+     */
+    public Tag2Topic_LibraryFilesBatchable( Set<ID> linkedEntityIds ) {
+        this.linkedEntityIds = linkedEntityIds;
+    }
+
     // Known Issue have to use Iterable instead of Database.QueryLocator:
     // https://success.salesforce.com/issues_view?id=a1p3A0000018COxQAM
     public Iterable<ContentDocumentLink> start( Database.BatchableContext context ) {
@@ -15,25 +39,51 @@ public without sharing class Tag2Topic_LibraryFilesBatchable implements Database
         // In order to query for files not explicitly shared to a user,
         // then we must go through content document link and find them
         // shared to records that the user has access to.
-        return [
-            SELECT
-                Id,
-                ContentDocumentId,
-                ContentDocument.LatestPublishedVersion.ContentDocumentId,
-                ContentDocument.LatestPublishedVersion.TagCsv
-            FROM
-                ContentDocumentLink
-            WHERE
-                LinkedEntityId IN (
-                    SELECT Id FROM ContentWorkspace
-                )
-                AND
-                (
-                    ContentDocument.LatestPublishedVersion.Have_Converted_Tags_to_Topics__c = null
-                    OR
-                    ContentDocument.LatestPublishedVersion.Have_Converted_Tags_to_Topics__c = false
-                )
-        ];
+
+        if ( this.linkedEntityIds == null || this.linkedEntityIds.isEmpty() ) {
+
+            return [
+                SELECT
+                    Id,
+                    ContentDocumentId,
+                    ContentDocument.LatestPublishedVersion.ContentDocumentId,
+                    ContentDocument.LatestPublishedVersion.TagCsv
+                FROM
+                    ContentDocumentLink
+                WHERE
+                    LinkedEntityId IN (
+                        SELECT Id FROM ContentWorkspace
+                    )
+                    AND
+                    (
+                        ContentDocument.LatestPublishedVersion.Have_Converted_Tags_to_Topics__c = null
+                        OR
+                        ContentDocument.LatestPublishedVersion.Have_Converted_Tags_to_Topics__c = false
+                    )
+            ];
+
+        } else {
+
+            return [
+                SELECT
+                    Id,
+                    ContentDocumentId,
+                    ContentDocument.LatestPublishedVersion.ContentDocumentId,
+                    ContentDocument.LatestPublishedVersion.TagCsv
+                FROM
+                    ContentDocumentLink
+                WHERE
+                    LinkedEntityId IN :this.linkedEntityIds
+                    AND
+                    (
+                        ContentDocument.LatestPublishedVersion.Have_Converted_Tags_to_Topics__c = null
+                        OR
+                        ContentDocument.LatestPublishedVersion.Have_Converted_Tags_to_Topics__c = false
+                    )
+            ];
+
+        }
+
     }
 
     public void execute( Database.BatchableContext context, List<ContentDocumentLink> cdls ) {
