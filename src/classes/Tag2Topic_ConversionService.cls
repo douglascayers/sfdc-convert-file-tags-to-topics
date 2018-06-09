@@ -6,9 +6,49 @@
  */
 public without sharing class Tag2Topic_ConversionService {
 
-    public void convertTagsToTopics( List<ContentVersion> files ) {
+    public List<ConversionResult> convertTagsToTopics( List<ContentVersion> files ) {
 
         System.debug( 'Tag2Topic_ConversionService.convertTagsToTopics' );
+
+        List<TopicAssignment> topicsToAssign = getTopicsToAssignForTags( files );
+
+        List<ConversionResult> conversionResults = new List<ConversionResult>();
+
+        Database.DMLOptions dmo = new Database.DMLOptions();
+        dmo.optAllOrNone = false;
+
+        List<Database.SaveResult> saveResults = Database.insert( topicsToAssign, dmo );
+
+        for ( Integer i = 0; i < saveResults.size(); i++ ) {
+
+            Database.SaveResult saveResult = saveResults[i];
+
+            ConversionResult conversionResult = new ConversionResult();
+            conversionResult.status = ( saveResult.isSuccess() ? ConversionResultStatus.CONVERTED : ConversionResultStatus.ERROR );
+            conversionResult.contentVersionId = topicsToAssign[i].EntityId;
+
+            if ( !saveResult.isSuccess() ) {
+
+                List<String> messages = new List<String>();
+
+                for ( Database.Error err : saveResult.getErrors() ) {
+                    messages.add( err.getMessage() );
+                }
+
+                conversionResult.message = String.join( messages, ' ' );
+
+            }
+
+            conversionResults.add( conversionResult );
+
+        }
+
+        return conversionResults;
+    }
+
+    // --------------------------------------------
+
+    private List<TopicAssignment> getTopicsToAssignForTags( List<ContentVersion> files ) {
 
         // topic already assigned to files
         // need to identify which file tags aren't already assigned as topics
@@ -35,13 +75,18 @@ public without sharing class Tag2Topic_ConversionService {
                     String lowerTagName = tagName.toLowerCase();
 
                     if ( assignedTopicNames == null || !assignedTopicNames.contains( lowerTagName ) ) {
+
                         System.debug( 'need to assign topic: ' + lowerTagName );
+
                         topicsToAssign.add( new TopicAssignment(
                             EntityId = file.ContentDocumentId,
                             TopicId = tagNameToTopicMap.get( lowerTagName ).Id
                         ));
+
                     } else {
+
                         System.debug( 'already assigned topic: ' + lowerTagName );
+
                     }
 
                 }
@@ -54,15 +99,8 @@ public without sharing class Tag2Topic_ConversionService {
 
         }
 
-        System.debug( 'topicsToAssign=' + topicsToAssign );
-
-        if ( topicsToAssign.size() > 0 ) {
-            insert topicsToAssign;
-        }
-
+        return topicsToAssign;
     }
-
-    // --------------------------------------------
 
     /**
      * Use this method to determine which topics have been assigned to the files.
@@ -139,7 +177,7 @@ public without sharing class Tag2Topic_ConversionService {
      */
     private Map<String, Topic> getTopicByTagNameMap( List<ContentVersion> files ) {
 
-        Set<String> tagNames = getFileTagNames( files );
+        Set<String> tagNames = getTagNames( files );
 
         // topics that already exist that match tag names
         // these are candidates for topic assignment
@@ -176,7 +214,7 @@ public without sharing class Tag2Topic_ConversionService {
     /**
      * Returns the unique set of tags assigned to the given files.
      */
-    private Set<String> getFileTagNames( List<ContentVersion> files ) {
+    private Set<String> getTagNames( List<ContentVersion> files ) {
 
         Set<String> tagNames = new Set<String>();
 
@@ -187,6 +225,29 @@ public without sharing class Tag2Topic_ConversionService {
         }
 
         return tagNames;
+    }
+
+    // --------------------------------------------
+
+    public class ConversionResult {
+
+        // was conversion success? skipped? error?
+        public ConversionResultStatus status { get; set; }
+
+        // id of the file whose tags to convert to topics
+        public ID contentVersionId { get; set; }
+
+        // any pertinent message
+        public String message { get; set; }
+
+        public ConversionResult() {
+            this.message = '';
+        }
+
+    }
+
+    public enum ConversionResultStatus {
+        CONVERTED, SKIPPED, ERROR
     }
 
 }

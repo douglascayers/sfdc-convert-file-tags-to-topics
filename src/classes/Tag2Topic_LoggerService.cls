@@ -18,13 +18,104 @@ public without sharing class Tag2Topic_LoggerService {
         dmo.allowFieldTruncation = true;
 
         Tag2Topic_Log__c log = new Tag2Topic_Log__c(
-            job_id__c = jobId,
-            status__c = 'ERROR',
-            summary__c = e.getMessage(),
-            detail__c = e.getStackTraceString()
+            Job_ID__c = jobId,
+            Status__c = 'ERROR',
+            Summary__c = e.getMessage(),
+            Detail__c = e.getStackTraceString()
         );
 
         Database.insert( log, dmo );
+
+    }
+
+    /**
+     * Designed to be called after conversion job has run to log any errors.
+     */
+    public static void log( ID jobId, List<Tag2Topic_ConversionService.ConversionResult> results ) {
+
+        List<Tag2Topic_Log__c> logs = new List<Tag2Topic_Log__c>();
+        Integer maxLength = Tag2Topic_Log__c.Summary__c.getDescribe().getLength();
+
+        Database.DMLOptions dmo = new Database.DMLOptions();
+        dmo.allowFieldTruncation = true;
+
+        for ( Tag2Topic_ConversionService.ConversionResult result : results ) {
+
+            System.debug(
+                getLoggingLevelFromSeverity( result.status ),
+                'jobId: ' + jobId + ', result: ' + result
+            );
+
+            logs.add( new Tag2Topic_Log__c(
+                Job_ID__c = jobId,
+                Status__c = String.valueOf( result.status ),
+                File_ID__c = result.contentVersionId,
+                Summary__c = result.message.abbreviate( maxLength ),
+                Detail__c = result.message
+            ));
+
+        }
+
+        if ( logs.size() > 0 ) {
+            Database.insert( logs, dmo );
+        }
+
+    }
+
+    private static LoggingLevel getLoggingLevelFromSeverity( Tag2Topic_ConversionService.ConversionResultStatus status ) {
+
+        LoggingLevel level = LoggingLevel.DEBUG;
+
+        if ( status == Tag2Topic_ConversionService.ConversionResultStatus.SKIPPED ) {
+            level = LoggingLevel.WARN;
+        } else if ( status == Tag2Topic_ConversionService.ConversionResultStatus.ERROR ) {
+            level = LoggingLevel.ERROR;
+        }
+
+        return level;
+    }
+
+    // --------------------------------------------------------------------
+
+    /**
+     * Checks if any log records have been created since the job started.
+     * If yes then sends an email to any Salesforce users configured for Apex Exception Email.
+     */
+    public static void sendApexExceptionEmailIfAnyErrorsSince( ID jobId ) {
+
+        AsyncApexJob job = [ SELECT Id, CreatedDate FROM AsyncApexJob WHERE Id = :jobId ];
+
+        sendApexExceptionEmailIfAnyErrorsSince( job.CreatedDate );
+
+    }
+
+    /**
+     * Checks if any log records have been created since the given date/time.
+     * If yes then sends an email to any Salesforce users configured for Apex Exception Email.
+     */
+    public static void sendApexExceptionEmailIfAnyErrorsSince( DateTime sinceDateTime ) {
+
+        Integer count = [ SELECT count() FROM Tag2Topic_Log__c WHERE CreatedDate >= :sinceDateTime AND Status__c = 'ERROR' ];
+
+        if ( count > 0 ) {
+
+            List<ID> usersToNotify = new List<ID>();
+
+            for ( ApexEmailNotification notif : [ SELECT UserId FROM ApexEmailNotification WHERE UserId != null LIMIT 100 ] ) {
+                usersToNotify.add( notif.UserId );
+            }
+
+            if ( usersToNotify.size() > 0 ) {
+
+                String subject = 'Errors: Convert File Tags to Topics';
+                String message = 'Errors have occurred. Please review the log records for more details ' +
+                                 URL.getSalesforceBaseURL().toExternalForm() + '/' + Tag2Topic_Log__c.sObjectType.getDescribe().getKeyPrefix();
+
+                Tag2Topic_EmailService.sendEmail( usersToNotify, subject, message );
+
+            }
+
+        }
 
     }
 

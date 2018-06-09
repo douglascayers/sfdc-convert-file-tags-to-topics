@@ -6,6 +6,14 @@
  */
 public without sharing class Tag2Topic_LibraryFilesBatchable implements Database.Batchable<ContentDocumentLink> {
 
+    @TestVisible
+    private List<Tag2Topic_ConversionService.ConversionResult> mockResults { get; set; }
+
+    @TestVisible
+    private Exception mockException { get; set; }
+
+    // ----------------------------------------------------------
+
     private Set<ID> linkedEntityIds { get; set; }
 
     /**
@@ -29,6 +37,8 @@ public without sharing class Tag2Topic_LibraryFilesBatchable implements Database
     public Tag2Topic_LibraryFilesBatchable( Set<ID> linkedEntityIds ) {
         this.linkedEntityIds = linkedEntityIds;
     }
+
+    // ----------------------------------------------------------
 
     // Known Issue have to use Iterable instead of Database.QueryLocator:
     // https://success.salesforce.com/issues_view?id=a1p3A0000018COxQAM
@@ -105,11 +115,6 @@ public without sharing class Tag2Topic_LibraryFilesBatchable implements Database
                 ContentDocument cd = cdl.ContentDocument;
                 ContentVersion cv = cd.LatestPublishedVersion;
 
-                System.debug( cdl );
-                System.debug( cd );
-                System.debug( cv );
-                System.debug( '---' );
-
                 if ( String.isNotBlank( cv.TagCsv ) ) {
                     filesMap.put( cv.Id, cv );
                 }
@@ -119,7 +124,22 @@ public without sharing class Tag2Topic_LibraryFilesBatchable implements Database
             if ( filesMap.size() > 0 ) {
 
                 Tag2Topic_ConversionService service = new Tag2Topic_ConversionService();
-                service.convertTagsToTopics( filesMap.values() );
+
+                List<Tag2Topic_ConversionService.ConversionResult> results = service.convertTagsToTopics( filesMap.values() );
+
+                if ( Test.isRunningTest() ) {
+
+                    if ( this.mockException != null ) {
+                        throw this.mockException;
+                    }
+
+                    if ( this.mockResults != null ) {
+                        results = mockResults;
+                    }
+
+                }
+
+                Tag2Topic_LoggerService.log( context.getJobId(), results );
 
             }
 
@@ -127,9 +147,7 @@ public without sharing class Tag2Topic_LibraryFilesBatchable implements Database
 
             Database.rollback( sp );
 
-            System.debug( LoggingLevel.ERROR, e.getMessage() + ' : ' + e.getStackTraceString() );
-
-            // todo how do we want to report this back to user?
+            Tag2Topic_LoggerService.log( context.getJobId(), e );
 
         }
 
@@ -139,7 +157,7 @@ public without sharing class Tag2Topic_LibraryFilesBatchable implements Database
 
         System.debug( 'Tag2Topic_LibraryFilesBatchable.finish: ' + context );
 
-        // todo report any errors back to user
+        Tag2Topic_LoggerService.sendApexExceptionEmailIfAnyErrorsSince( context.getJobId() );
 
     }
 
