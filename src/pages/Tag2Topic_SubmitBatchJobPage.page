@@ -1,0 +1,40 @@
+<apex:page controller="Tag2Topic_SubmitBatchJobController" tabStyle="ContentDocument">
+
+    <apex:sectionHeader title="Convert File Tags to Topics"/>
+
+    <apex:form id="theForm">
+
+        <apex:pageMessages id="theMessages"/>
+
+        <apex:pageBlock mode="edit">
+
+            <apex:pageBlockButtons location="bottom">
+                <apex:commandButton action="{!submit}" value=" Submit "/>
+            </apex:pageBlockButtons>
+
+            <apex:pageBlockSection columns="1">
+
+                <apex:selectRadio legendText="Which files to convert?" value="{!option}" layout="pageDirection">
+                    <apex:selectOptions value="{!options}"/>
+                    <apex:actionSupport action="{!handleOptionChange}" event="onchange" rerender="theForm"/>
+                </apex:selectRadio>
+
+            </apex:pageBlockSection>
+
+            <apex:pageBlockSection rendered="{!option == 'USER_LIBRARIES'}">
+
+                User Libraries
+
+            </apex:pageBlockSection>
+
+            <apex:pageBlockSection rendered="{!option == 'USER_SPECIFIED'}">
+
+                User Specified
+
+            </apex:pageBlockSection>
+
+        </apex:pageBlock>
+
+    </apex:form>
+
+</apex:page>
