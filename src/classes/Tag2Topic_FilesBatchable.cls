@@ -4,7 +4,7 @@
  * GitHub: https://github.com/douglascayers/sfdc-convert-file-tags-to-topics
  * License: BSD 3-Clause License
  */
-public without sharing class Tag2Topic_LibraryFilesBatchable implements Database.Batchable<ContentDocumentLink> {
+public without sharing class Tag2Topic_FilesBatchable implements Database.Batchable<ContentDocumentLink> {
 
     @TestVisible
     private List<Tag2Topic_ConversionService.ConversionResult> mockResults { get; set; }
@@ -22,7 +22,7 @@ public without sharing class Tag2Topic_LibraryFilesBatchable implements Database
      * Files shared to libraries will have their
      * tags converted and assigned as topics.
      */
-    public Tag2Topic_LibraryFilesBatchable() {
+    public Tag2Topic_FilesBatchable() {
         this( null );
     }
 
@@ -34,7 +34,7 @@ public without sharing class Tag2Topic_LibraryFilesBatchable implements Database
      *      Only files shared to these entities will have their
      *      tags converted and assigned as topics.
      */
-    public Tag2Topic_LibraryFilesBatchable( Set<ID> linkedEntityIds ) {
+    public Tag2Topic_FilesBatchable( Set<ID> linkedEntityIds ) {
         this.linkedEntityIds = linkedEntityIds;
     }
 

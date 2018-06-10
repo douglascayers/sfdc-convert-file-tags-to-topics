@@ -5,7 +5,7 @@
  * License: BSD 3-Clause License
  */
 @IsTest
-private class Tag2Topic_LibraryFilesBatchableTest {
+private class Tag2Topic_FilesBatchableTest {
 
     @IsTest
     static void test_batch() {
