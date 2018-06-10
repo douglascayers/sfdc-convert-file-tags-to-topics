@@ -9,6 +9,8 @@
         <members>Tag2Topic_FilesBatchableTest</members>
         <members>Tag2Topic_LoggerService</members>
         <members>Tag2Topic_LoggerServiceTest</members>
+        <members>Tag2Topic_Utils</members>
+        <members>Tag2Topic_UtilsTest</members>
         <name>ApexClass</name>
     </types>
     <types>
