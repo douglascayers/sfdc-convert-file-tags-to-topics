@@ -4,7 +4,7 @@
  * GitHub: https://github.com/douglascayers/sfdc-convert-file-tags-to-topics
  * License: BSD 3-Clause License
  */
-public without sharing class Tag2Topic_FilesBatchable implements Database.Batchable<ContentDocumentLink> {
+public with sharing class Tag2Topic_FilesBatchable implements Database.Batchable<ContentDocumentLink> {
 
     @TestVisible
     private Exception mockException { get; set; }
