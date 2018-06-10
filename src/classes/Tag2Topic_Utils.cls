@@ -17,6 +17,28 @@ public class Tag2Topic_Utils {
         return parts;
     }
 
+    public static User newUser( ID profileId, String firstName, String lastName, String email ) {
+        return newUser( profileId, null, firstName, lastName, email );
+    }
+
+    public static User newUser( ID profileId, ID roleId, String firstName, String lastName, String email ) {
+        Integer rand = Math.round( Math.random() * 1000 );
+        return new User(
+            isActive = true,
+            profileId = profileId,
+            userRoleId = roleId,
+            alias = firstName.substring(0,1) + lastName.substring(1,5),
+            firstName = firstName,
+            lastName = lastName,
+            email = email,
+            username = rand + email,
+            emailEncodingKey = 'UTF-8',
+            languageLocaleKey = 'en_US',
+            localeSidKey = 'en_US',
+            timeZoneSidKey = 'America/Chicago'
+        );
+    }
+
 }
 /*
 BSD 3-Clause License

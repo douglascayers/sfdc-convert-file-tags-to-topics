@@ -19,6 +19,36 @@ private class Tag2Topic_UtilsTest {
 
     }
 
+    @IsTest
+    static void test_new_user() {
+
+        Test.startTest();
+
+        Profile p = [ SELECT id FROM Profile WHERE name = 'Standard User' ];
+
+        UserRole ur = new UserRole(
+            Name = 'Test Role ' + System.currentTimeMillis()
+        );
+
+        insert ur;
+
+        User user1, user2;
+
+        // https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_testing_tools_runas.htm
+        System.runAs( new User( id = UserInfo.getUserId() ) ) {
+
+            user1 = Tag2Topic_Utils.newUser( p.id, ur.Id, 'Alpha', 'User 1', 'user_1@example.com' );
+
+            user2 = Tag2Topic_Utils.newUser( p.id, 'Beta',  'User 2', 'user_2@example.com' );
+
+            insert new List<User>{ user1, user2 };
+
+        }
+
+        Test.stopTest();
+
+    }
+
 }
 /*
 BSD 3-Clause License
