@@ -27,6 +27,8 @@ Or, you can periodically monitor the **Tag2Topic Log** object for new records.
 
 In Setup, ensure under **Topics for Object Settings** that Topics are enabled for the **Content Document** object.
 
+As the user performing the tags-to-topics conversion, you must have membership to the libraries whose files are to be converted,
+or you must have at least read access to the records the files are shared with if you scope conversion to specific entities.
 
 Credits
 =======

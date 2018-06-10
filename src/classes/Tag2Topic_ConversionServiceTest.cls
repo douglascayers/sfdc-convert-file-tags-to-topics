@@ -122,6 +122,8 @@ private class Tag2Topic_ConversionServiceTest {
 
     }
 
+    // --------------------------------------------
+
     private static void assertFileAssignedTopicForEachTag( ContentVersion file ) {
 
         List<String> tagNames = Tag2Topic_Utils.split( file.TagCsv, ',' );
