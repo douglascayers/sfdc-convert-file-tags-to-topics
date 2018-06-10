@@ -14,16 +14,6 @@ public without sharing class Tag2Topic_FilesBatchable implements Database.Batcha
     private Set<ID> linkedEntityIds { get; set; }
 
     /**
-     * Default Constructor
-     *
-     * Files shared to libraries will have their
-     * tags converted and assigned as topics.
-     */
-    public Tag2Topic_FilesBatchable() {
-        this( null );
-    }
-
-    /**
      * Constructor
      *
      * @param linkedEntityIds
@@ -47,25 +37,9 @@ public without sharing class Tag2Topic_FilesBatchable implements Database.Batcha
         // then we must go through content document link and find them
         // shared to records that the user has access to.
 
-        if ( this.linkedEntityIds == null || this.linkedEntityIds.isEmpty() ) {
-
-            return [
-                SELECT
-                    Id,
-                    ContentDocumentId,
-                    ContentDocument.LatestPublishedVersion.ContentDocumentId,
-                    ContentDocument.LatestPublishedVersion.TagCsv
-                FROM
-                    ContentDocumentLink
-                WHERE
-                    LinkedEntityId IN (
-                        SELECT Id FROM ContentWorkspace
-                    )
-            ];
-
-        } else {
-
-            return [
+        return ( this.linkedEntityIds == null || this.linkedEntityIds.isEmpty() ) ?
+            new List<ContentDocumentLink>() :
+            [
                 SELECT
                     Id,
                     ContentDocumentId,
@@ -76,8 +50,6 @@ public without sharing class Tag2Topic_FilesBatchable implements Database.Batcha
                 WHERE
                     LinkedEntityId IN :this.linkedEntityIds
             ];
-
-        }
 
     }
 

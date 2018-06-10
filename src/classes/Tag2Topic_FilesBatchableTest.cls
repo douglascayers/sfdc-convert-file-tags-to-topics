@@ -149,7 +149,9 @@ private class Tag2Topic_FilesBatchableTest {
 
             Test.startTest();
 
-            Database.executeBatch( new Tag2Topic_FilesBatchable() );
+            Set<ID> entityIds = new Set<ID> { library.Id };
+
+            Database.executeBatch( new Tag2Topic_FilesBatchable( entityIds ) );
 
             Test.stopTest();
 
