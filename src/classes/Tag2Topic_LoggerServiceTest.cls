@@ -42,17 +42,17 @@ private class Tag2Topic_LoggerServiceTest {
         Tag2Topic_ConversionService.ConversionResult resultConverted = new Tag2Topic_ConversionService.ConversionResult();
         resultConverted.status = Tag2Topic_ConversionService.ConversionResultStatus.CONVERTED;
         resultConverted.contentVersionId = fileId;
-        resultConverted.message = 'converted message';
+        resultConverted.messages.add( 'converted message' );
 
         Tag2Topic_ConversionService.ConversionResult resultSkipped = new Tag2Topic_ConversionService.ConversionResult();
         resultSkipped.status = Tag2Topic_ConversionService.ConversionResultStatus.SKIPPED;
         resultSkipped.contentVersionId = fileId;
-        resultSkipped.message = 'skipped message';
+        resultSkipped.messages.add( 'skipped message' );
 
         Tag2Topic_ConversionService.ConversionResult resultError = new Tag2Topic_ConversionService.ConversionResult();
         resultError.status = Tag2Topic_ConversionService.ConversionResultStatus.ERROR;
         resultError.contentVersionId = fileId;
-        resultError.message = 'error message';
+        resultError.messages.add( 'error message' );
 
         conversionResults.add( resultConverted );
         conversionResults.add( resultSkipped );
