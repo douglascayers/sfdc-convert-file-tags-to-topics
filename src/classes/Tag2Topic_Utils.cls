@@ -17,6 +17,26 @@ public class Tag2Topic_Utils {
         return parts;
     }
 
+    public static void assertFileAssignedTopicForEachTag( ID contentDocumentId, List<String> expectedAssignedTopicNames ) {
+
+        List<TopicAssignment> assignments = [ SELECT Id, EntityId, TopicId, Topic.Name FROM TopicAssignment WHERE EntityId = :contentDocumentId ];
+
+        System.assertEquals( expectedAssignedTopicNames.size(), assignments.size() );
+
+        for ( String tagName : expectedAssignedTopicNames ) {
+            Boolean topicFound = false;
+            for ( TopicAssignment assignment : assignments ) {
+                if ( tagName.equalsIgnoreCase( assignment.Topic.Name ) ) {
+                    topicFound = true;
+                    break;
+                }
+            }
+            System.assert( topicFound, 'No topic assignment found for tag: ' + tagName );
+        }
+
+
+    }
+
     public static User newUser( ID profileId, String firstName, String lastName, String email ) {
         return newUser( profileId, null, firstName, lastName, email );
     }

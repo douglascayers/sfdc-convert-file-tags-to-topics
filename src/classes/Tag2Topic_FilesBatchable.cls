@@ -7,9 +7,6 @@
 public without sharing class Tag2Topic_FilesBatchable implements Database.Batchable<ContentDocumentLink> {
 
     @TestVisible
-    private List<Tag2Topic_ConversionService.ConversionResult> mockResults { get; set; }
-
-    @TestVisible
     private Exception mockException { get; set; }
 
     // ----------------------------------------------------------
@@ -119,10 +116,6 @@ public without sharing class Tag2Topic_FilesBatchable implements Database.Batcha
 
                     if ( this.mockException != null ) {
                         throw this.mockException;
-                    }
-
-                    if ( this.mockResults != null ) {
-                        results = mockResults;
                     }
 
                 }

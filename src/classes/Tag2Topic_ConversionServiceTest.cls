@@ -96,17 +96,29 @@ private class Tag2Topic_ConversionServiceTest {
 
             System.debug( conversionResult );
 
-            switch on conversionResult.status {
-                when CONVERTED {
-                    countConverted++;
-                }
-                when SKIPPED {
-                    countSkipped++;
-                }
-                when ERROR {
-                    countError++;
-                }
+            if ( conversionResult.status == Tag2Topic_ConversionService.ConversionResultStatus.CONVERTED ) {
+               countConverted++;
             }
+
+            if ( conversionResult.status == Tag2Topic_ConversionService.ConversionResultStatus.SKIPPED ) {
+                countSkipped++;
+            }
+
+            if ( conversionResult.status == Tag2Topic_ConversionService.ConversionResultStatus.ERROR ) {
+                countError++;
+            }
+
+//            switch on conversionResult.status {
+//                when CONVERTED {
+//                    countConverted++;
+//                }
+//                when SKIPPED {
+//                    countSkipped++;
+//                }
+//                when ERROR {
+//                    countError++;
+//                }
+//            }
 
         }
 
@@ -117,32 +129,8 @@ private class Tag2Topic_ConversionServiceTest {
 
         System.assertEquals( 0, [ SELECT COUNT() FROM TopicAssignment WHERE EntityId IN ( :fileA.ContentDocumentId, :fileD.ContentDocumentId ) ] );
 
-        assertFileAssignedTopicForEachTag( fileB );
-        assertFileAssignedTopicForEachTag( fileC );
-
-    }
-
-    // --------------------------------------------
-
-    private static void assertFileAssignedTopicForEachTag( ContentVersion file ) {
-
-        List<String> tagNames = Tag2Topic_Utils.split( file.TagCsv, ',' );
-
-        List<TopicAssignment> assignments = [ SELECT Id, EntityId, TopicId, Topic.Name FROM TopicAssignment WHERE EntityId = :file.ContentDocumentId ];
-
-        System.assertEquals( tagNames.size(), assignments.size() );
-
-        for ( String tagName : tagNames ) {
-            Boolean topicFound = false;
-            for ( TopicAssignment assignment : assignments ) {
-                if ( tagName.equalsIgnoreCase( assignment.Topic.Name ) ) {
-                    topicFound = true;
-                    break;
-                }
-            }
-            System.assert( topicFound, 'No topic assignment found for tag: ' + tagName );
-        }
-
+        Tag2Topic_Utils.assertFileAssignedTopicForEachTag( fileB.ContentDocumentId, Tag2Topic_Utils.split( fileB.TagCsv, ',' ) );
+        Tag2Topic_Utils.assertFileAssignedTopicForEachTag( fileC.ContentDocumentId, Tag2Topic_Utils.split( fileC.TagCsv, ',' ) );
 
     }
 
