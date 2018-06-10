@@ -96,29 +96,17 @@ private class Tag2Topic_ConversionServiceTest {
 
             System.debug( conversionResult );
 
-            if ( conversionResult.status == Tag2Topic_ConversionService.ConversionResultStatus.CONVERTED ) {
-                countConverted++;
+            switch on conversionResult.status {
+                when CONVERTED {
+                    countConverted++;
+                }
+                when SKIPPED {
+                    countSkipped++;
+                }
+                when ERROR {
+                    countError++;
+                }
             }
-
-            if ( conversionResult.status == Tag2Topic_ConversionService.ConversionResultStatus.SKIPPED ) {
-                countSkipped++;
-            }
-
-            if ( conversionResult.status == Tag2Topic_ConversionService.ConversionResultStatus.ERROR ) {
-                countError++;
-            }
-
-//            switch on conversionResult.status {
-//                when CONVERTED {
-//                    countConverted++;
-//                }
-//                when SKIPPED {
-//                    countSkipped++;
-//                }
-//                when ERROR {
-//                    countError++;
-//                }
-//            }
 
         }
 
@@ -142,16 +130,17 @@ private class Tag2Topic_ConversionServiceTest {
 
         System.assertEquals( tagNames.size(), assignments.size() );
 
-        for ( TopicAssignment assignment : assignments ) {
-            Boolean nameMatches = false;
-            for ( String tagName : tagNames ) {
+        for ( String tagName : tagNames ) {
+            Boolean topicFound = false;
+            for ( TopicAssignment assignment : assignments ) {
                 if ( tagName.equalsIgnoreCase( assignment.Topic.Name ) ) {
-                    nameMatches = true;
+                    topicFound = true;
                     break;
                 }
             }
-            System.assert( nameMatches, 'No topic assignment found for tags: ' + tagNames );
+            System.assert( topicFound, 'No topic assignment found for tag: ' + tagName );
         }
+
 
     }
 
