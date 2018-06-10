@@ -5,8 +5,8 @@
         <members>Tag2Topic_ConversionServiceTest</members>
         <members>Tag2Topic_EmailService</members>
         <members>Tag2Topic_EmailServiceTest</members>
-        <members>Tag2Topic_LibraryFilesBatchable</members>
-        <members>Tag2Topic_LibraryFilesBatchableTest</members>
+        <members>Tag2Topic_FilesBatchable</members>
+        <members>Tag2Topic_FilesBatchableTest</members>
         <members>Tag2Topic_LoggerService</members>
         <members>Tag2Topic_LoggerServiceTest</members>
         <name>ApexClass</name>
