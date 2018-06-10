@@ -6,13 +6,56 @@
  */
 public without sharing class Tag2Topic_ConversionService {
 
+    /**
+     * For each file, inserts TopicAssignment records for each of its tags (ContentVersion.TagCsv).
+     * Topics are created as necessary, if do not already exist by the tag names.
+     * Topics are assigned as necessary, if they are not already assigned to the file.
+     *
+     * Returns a list of conversion results indicating whether the topics were assigned
+     * or if an error occurred during the conversion process.
+     *
+     * The topic assignments are saved optimistically (allOrNone=false).
+     */
     public List<ConversionResult> convertTagsToTopics( List<ContentVersion> files ) {
 
         System.debug( 'Tag2Topic_ConversionService.convertTagsToTopics' );
 
-        List<TopicAssignment> topicsToAssign = getTopicsToAssignForTags( files );
+        Map<ID, ConversionResult> contentDocumentIdToConversionResultMap = initConversionResultByContentDocumentIdMap( files );
+
+        List<TopicAssignment> topicsToAssign = getTopicsToAssignForTags( files, contentDocumentIdToConversionResultMap );
+
+        assignTopicsToFiles( topicsToAssign, contentDocumentIdToConversionResultMap );
+
+        // Ensure returned list of results is same order as the files parameter.
+        // This is common convention among apex DML operations.
 
         List<ConversionResult> conversionResults = new List<ConversionResult>();
+        for ( ContentVersion file : files ) {
+            conversionResults.add( contentDocumentIdToConversionResultMap.get( file.ContentDocumentId ) );
+        }
+
+        return conversionResults;
+    }
+
+    // --------------------------------------------
+
+    private Map<ID, ConversionResult> initConversionResultByContentDocumentIdMap( List<ContentVersion> files ) {
+
+        Map<ID, ConversionResult> resultMap = new Map<ID, ConversionResult>();
+
+        for ( ContentVersion file : files ) {
+
+            ConversionResult result = new ConversionResult();
+            result.contentVersionId = file.Id;
+
+            resultMap.put( file.ContentDocumentId, result );
+
+        }
+
+        return resultMap;
+    }
+
+    private void assignTopicsToFiles( List<TopicAssignment> topicsToAssign, Map<ID, ConversionResult> contentDocumentIdToConversionResultMap ) {
 
         Database.DMLOptions dmo = new Database.DMLOptions();
         dmo.optAllOrNone = false;
@@ -23,41 +66,40 @@ public without sharing class Tag2Topic_ConversionService {
 
             Database.SaveResult saveResult = saveResults[i];
 
-            ConversionResult conversionResult = new ConversionResult();
-            conversionResult.status = ( saveResult.isSuccess() ? ConversionResultStatus.CONVERTED : ConversionResultStatus.ERROR );
-            conversionResult.contentVersionId = topicsToAssign[i].EntityId;
+            ID contentDocumentId = topicsToAssign[i].EntityId;
+            ConversionResult conversionResult = contentDocumentIdToConversionResultMap.get( contentDocumentId );
 
             if ( !saveResult.isSuccess() ) {
 
-                List<String> messages = new List<String>();
+                List<String> errorMessages = new List<String>();
 
                 for ( Database.Error err : saveResult.getErrors() ) {
-                    messages.add( err.getMessage() );
+                    errorMessages.add( err.getMessage() );
                 }
 
-                conversionResult.message = String.join( messages, ' ' );
+                conversionResult.messages.addAll( errorMessages );
+                conversionResult.status = ConversionResultStatus.ERROR;
+
+            } else if ( conversionResult.status != ConversionResultStatus.ERROR ) {
+
+                conversionResult.status = ConversionResultStatus.CONVERTED;
 
             }
 
-            conversionResults.add( conversionResult );
-
         }
 
-        return conversionResults;
     }
 
-    // --------------------------------------------
-
-    private List<TopicAssignment> getTopicsToAssignForTags( List<ContentVersion> files ) {
+    private List<TopicAssignment> getTopicsToAssignForTags( List<ContentVersion> files, Map<ID, ConversionResult> contentDocumentIdToConversionResultMap ) {
 
         // topic already assigned to files
         // need to identify which file tags aren't already assigned as topics
-        Map<ID, Set<String>> contentDocumentIdToTopicNamesMap = getTopicNamesByContentDocumentIdMap( files );
+        Map<ID, Set<String>> contentDocumentIdToTopicNamesMap = getTopicNamesByContentDocumentIdMap( files, contentDocumentIdToConversionResultMap );
 
         // all the topics that match to file tags
         // use this map to lookup the topic to assign to a file
         // once identiy which tags/topics aren't already assigned to the files
-        Map<String, Topic> tagNameToTopicMap = getOrCreateTopicByTagNameMap( files );
+        Map<String, Topic> tagNameToTopicMap = getOrCreateTopicByTagNameMap( files, contentDocumentIdToConversionResultMap );
 
         List<TopicAssignment> topicsToAssign = new List<TopicAssignment>();
 
@@ -70,7 +112,7 @@ public without sharing class Tag2Topic_ConversionService {
                 // remember, the topic names are lowercase so we can do case-insensitive contains
                 Set<String> assignedTopicNames = contentDocumentIdToTopicNamesMap.get( file.ContentDocumentId );
 
-                for ( String tagName : file.TagCsv.split( ',' ) ) {
+                for ( String tagName : Tag2Topic_Utils.split( file.TagCsv, ',' ) ) {
 
                     String lowerTagName = tagName.toLowerCase();
 
@@ -78,10 +120,22 @@ public without sharing class Tag2Topic_ConversionService {
 
                         System.debug( 'need to assign topic: ' + lowerTagName );
 
-                        topicsToAssign.add( new TopicAssignment(
-                            EntityId = file.ContentDocumentId,
-                            TopicId = tagNameToTopicMap.get( lowerTagName ).Id
-                        ));
+                        Topic topicForTagName = tagNameToTopicMap.get( lowerTagName );
+
+                        if ( topicForTagName != null ) {
+
+                            System.debug( 'assigning topic: ' + topicForTagName );
+
+                            topicsToAssign.add( new TopicAssignment(
+                                EntityId = file.ContentDocumentId,
+                                TopicId = topicForTagName.Id
+                            ));
+
+                        } else {
+
+                            System.debug( 'no topic exists for tag: ' + lowerTagName );
+
+                        }
 
                     } else {
 
@@ -94,6 +148,10 @@ public without sharing class Tag2Topic_ConversionService {
             } else {
 
                 System.debug( 'skipping file, not assigned any tags' );
+
+                ConversionResult conversionResult = contentDocumentIdToConversionResultMap.get( file.ContentDocumentId );
+                conversionResult.status = ConversionResultStatus.SKIPPED;
+                conversionResult.messages.add( 'File is not assigned any tags' );
 
             }
 
@@ -108,7 +166,7 @@ public without sharing class Tag2Topic_ConversionService {
      * Returns a map whose keys are ContentDocumentIds and values are
      * set of already assigned topic names (lowercase).
      */
-    private Map<ID, Set<String>> getTopicNamesByContentDocumentIdMap( List<ContentVersion> files ) {
+    private Map<ID, Set<String>> getTopicNamesByContentDocumentIdMap( List<ContentVersion> files, Map<ID, ConversionResult> contentDocumentIdToConversionResultMap ) {
 
         Set<ID> contentDocumentIds = getContentDocumentIds( files );
 
@@ -146,17 +204,18 @@ public without sharing class Tag2Topic_ConversionService {
      *
      * The returned map will have an entry for each tag among the files.
      */
-    private Map<String, Topic> getOrCreateTopicByTagNameMap( List<ContentVersion> files ) {
+    private Map<String, Topic> getOrCreateTopicByTagNameMap( List<ContentVersion> files, Map<ID, ConversionResult> contentDocumentIdToConversionResultMap ) {
 
-        Map<String, Topic> topicByTagNameMap = getTopicByTagNameMap( files );
+        Map<String, Topic> tagNameToTopicMap = getTopicByTagNameMap( files );
 
         // identify tags that are not yet topics
         for ( ContentVersion file : files ) {
             if ( String.isNotBlank( file.TagCsv ) ) {
-                for ( String tagName : file.TagCsv.split( ',' ) ) {
-                    if ( !topicByTagNameMap.containsKey( tagName.toLowerCase() ) ) {
+                for ( String tagName : Tag2Topic_Utils.split( file.TagCsv, ',' ) ) {
+                    String lowerTagName = tagName.toLowerCase();
+                    if ( !tagNameToTopicMap.containsKey( lowerTagName ) ) {
                         System.debug( 'new topic: ' + tagName );
-                        topicByTagNameMap.put( tagName.toLowerCase(), new Topic( Name = tagName ) );
+                        tagNameToTopicMap.put( lowerTagName, new Topic( Name = tagName ) );
                     } else {
                         System.debug( 'topic already exists: ' + tagName );
                     }
@@ -164,9 +223,43 @@ public without sharing class Tag2Topic_ConversionService {
             }
         }
 
-        upsert topicByTagNameMap.values();
+        Boolean allOrNone = false;
+        List<Topic> topics = tagNameToTopicMap.values();
+        List<Database.UpsertResult> upsertResults = Database.upsert( topics, allOrNone );
 
-        return topicByTagNameMap;
+        for ( Integer i = 0; i < upsertResults.size(); i++ ) {
+
+            Database.UpsertResult upsertResult = upsertResults[i];
+            Topic t = topics[i];
+
+            if ( !upsertResult.isSuccess() ) {
+
+                // if failed to upsert topic then note issue on all conversion results
+                // of files with the same tag name as the topic that failed to upsert
+
+                List<String> errorMessages = new List<String>();
+
+                for ( Database.Error err : upsertResult.getErrors() ) {
+                    errorMessages.add( err.getMessage() );
+                }
+
+                for ( ContentVersion file : files ) {
+                    if ( String.isNotBlank( file.TagCsv ) ) {
+                        for ( String tagName : Tag2Topic_Utils.split( file.TagCsv, ',' ) ) {
+                            if ( tagName.equalsIgnoreCase( t.Name ) ) {
+                                ConversionResult conversionResult = contentDocumentIdToConversionResultMap.get( file.ContentDocumentId );
+                                conversionResult.messages.addAll( errorMessages );
+                                conversionResult.status = ConversionResultStatus.ERROR;
+                            }
+                        }
+                    }
+                }
+
+            }
+
+        }
+
+        return tagNameToTopicMap;
     }
 
     /**
@@ -182,7 +275,7 @@ public without sharing class Tag2Topic_ConversionService {
         // topics that already exist that match tag names
         // these are candidates for topic assignment
         // if a tag name exists in this map, then don't redundantly create topic
-        Map<String, Topic> topicsByTagNameMap = new Map<String, Topic>();
+        Map<String, Topic> tagNameToTopicMap = new Map<String, Topic>();
 
         for ( List<Topic> topics : [
                 SELECT Id, Name
@@ -190,11 +283,11 @@ public without sharing class Tag2Topic_ConversionService {
                 WHERE Name IN :tagNames
         ] ) {
             for ( Topic t : topics ) {
-                topicsByTagNameMap.put( t.Name.toLowerCase(), t );
+                tagNameToTopicMap.put( t.Name.toLowerCase(), t );
             }
         }
 
-        return topicsByTagNameMap;
+        return tagNameToTopicMap;
     }
 
     /**
@@ -220,7 +313,7 @@ public without sharing class Tag2Topic_ConversionService {
 
         for ( ContentVersion file : files ) {
             if ( String.isNotBlank( file.TagCsv ) ) {
-                tagNames.addAll( file.TagCsv.split( ',' ) );
+                tagNames.addAll( Tag2Topic_Utils.split( file.TagCsv, ',' ) );
             }
         }
 
@@ -238,10 +331,10 @@ public without sharing class Tag2Topic_ConversionService {
         public ID contentVersionId { get; set; }
 
         // any pertinent message
-        public String message { get; set; }
+        public List<String> messages { get; set; }
 
         public ConversionResult() {
-            this.message = '';
+            this.messages = new List<String>();
         }
 
     }

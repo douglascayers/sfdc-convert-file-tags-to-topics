@@ -44,7 +44,7 @@ public without sharing class Tag2Topic_FilesBatchable implements Database.Batcha
     // https://success.salesforce.com/issues_view?id=a1p3A0000018COxQAM
     public Iterable<ContentDocumentLink> start( Database.BatchableContext context ) {
 
-        System.debug( 'Tag2Topic_LibraryFilesBatchable.start: ' + context );
+        System.debug( 'Tag2Topic_FilesBatchable.start: ' + context );
 
         // In order to query for files not explicitly shared to a user,
         // then we must go through content document link and find them
@@ -86,7 +86,7 @@ public without sharing class Tag2Topic_FilesBatchable implements Database.Batcha
 
     public void execute( Database.BatchableContext context, List<ContentDocumentLink> cdls ) {
 
-        System.debug( 'Tag2Topic_LibraryFilesBatchable.execute: ' + context );
+        System.debug( 'Tag2Topic_FilesBatchable.execute: ' + context );
 
         SavePoint sp = Database.setSavePoint();
 
@@ -143,7 +143,7 @@ public without sharing class Tag2Topic_FilesBatchable implements Database.Batcha
 
     public void finish( Database.BatchableContext context ) {
 
-        System.debug( 'Tag2Topic_LibraryFilesBatchable.finish: ' + context );
+        System.debug( 'Tag2Topic_FilesBatchable.finish: ' + context );
 
         Tag2Topic_LoggerService.sendApexExceptionEmailIfAnyErrorsSince( context.getJobId() );
 
