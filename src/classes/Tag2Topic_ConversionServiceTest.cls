@@ -4,6 +4,20 @@ private class Tag2Topic_ConversionServiceTest {
     @IsTest
     static void test_conversion_service() {
 
+        /*
+         * Note, Topic and PushTopic among other objects that have unique indexes on them and
+         * will throw duplicate value error if test data that you create would duplicate an actual value in the org.
+         * SeeAllData annotation and 'without sharing' have no effect on whether your code will or will not see the org data.
+         * https://salesforce.stackexchange.com/questions/12258/pushtopic-test-duplicate-name-bug
+         * https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_testing_data_access.htm
+         */
+
+        String tagName1 = 'topic1' + System.currentTimeMillis(); // fileB, fileC
+        String tagName2 = 'topic2' + System.currentTimeMillis(); // fileB, fileC
+        String tagName3 = 'topic3' + System.currentTimeMillis(); // fileB
+        String tagName4 = 'topic4' + System.currentTimeMillis(); // fileC
+        String tagName5 = ( 'topic5' + System.currentTimeMillis() ).rightPad( Topic.Name.getDescribe().getLength() + 1, 'x' ); // fileD
+
         // FileA should be skipped because no tags
         ContentVersion fileA = new ContentVersion(
             Title = 'FileA',
@@ -17,7 +31,7 @@ private class Tag2Topic_ConversionServiceTest {
         ContentVersion fileB = new ContentVersion(
             Title = 'FileB',
             PathOnClient = '/FileB.txt',
-            TagCsv = 'trailhead, astro, fun',
+            TagCsv = String.join( new String[] { tagName1, tagName2, tagName3 }, ',' ),
             VersionData = Blob.valueOf( 'FileB' )
         );
 
@@ -26,7 +40,7 @@ private class Tag2Topic_ConversionServiceTest {
         ContentVersion fileC = new ContentVersion(
             Title = 'FileC',
             PathOnClient = '/FileC.txt',
-            TagCsv = 'trailhead, codey, fun',
+            TagCsv = String.join( new String[] { tagName1, tagName2, tagName4 }, ',' ),
             VersionData = Blob.valueOf( 'FileC' )
         );
 
@@ -34,7 +48,7 @@ private class Tag2Topic_ConversionServiceTest {
         ContentVersion fileD = new ContentVersion(
             Title = 'FileD',
             PathOnClient = '/FileD.txt',
-            TagCsv = 'x'.repeat( Topic.Name.getDescribe().getLength() + 1 ),
+            TagCsv = tagName5,
             VersionData = Blob.valueOf( 'FileD' )
         );
 
@@ -57,9 +71,9 @@ private class Tag2Topic_ConversionServiceTest {
         ]);
         files = filesMap.values();
 
-        // ensure variable references to files A,B,C,D
+        // Ensure variable references to files A,B,C,D
         // also have their generated content document id
-        // as we make reference to them in test assertions
+        // as we make reference to them in test assertions.
         fileA = filesMap.get( fileA.Id );
         fileB = filesMap.get( fileB.Id );
         fileC = filesMap.get( fileC.Id );
@@ -67,15 +81,15 @@ private class Tag2Topic_ConversionServiceTest {
 
         // assign a topic to only of the files with tags
         // to test the service logic to detect assigned topics
-        Topic topicTrailhead = new Topic(
-            Name = 'Trailhead'
+        Topic topic1 = new Topic(
+            Name = tagName1
         );
 
-        insert topicTrailhead;
+        insert topic1;
 
         TopicAssignment fileB_topicTrailhead = new TopicAssignment(
             EntityId = fileB.ContentDocumentId,
-            TopicId = topicTrailhead.Id
+            TopicId = topic1.Id
         );
 
         insert fileB_topicTrailhead;

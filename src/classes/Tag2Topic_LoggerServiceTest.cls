@@ -35,23 +35,27 @@ private class Tag2Topic_LoggerServiceTest {
     static void test_log_conversion_results() {
 
         ID jobId = AsyncApexJob.SObjectType.getDescribe().getKeyPrefix().rightPad( 15, '0' );
-        ID fileId = ContentVersion.SObjectType.getDescribe().getKeyPrefix().rightPad( 15, '0' );
+        ID contentVersionId = ContentVersion.SObjectType.getDescribe().getKeyPrefix().rightPad( 15, '0' );
+        ID contentDocumentId = ContentDocument.SObjectType.getDescribe().getKeyPrefix().rightPad( 15, '0' );
 
         List<Tag2Topic_ConversionService.ConversionResult> conversionResults = new List<Tag2Topic_ConversionService.ConversionResult>();
 
         Tag2Topic_ConversionService.ConversionResult resultConverted = new Tag2Topic_ConversionService.ConversionResult();
         resultConverted.status = Tag2Topic_ConversionService.ConversionResultStatus.CONVERTED;
-        resultConverted.contentVersionId = fileId;
+        resultConverted.contentVersionId = contentVersionId;
+        resultConverted.contentDocumentId = contentDocumentId;
         resultConverted.messages.add( 'converted message' );
 
         Tag2Topic_ConversionService.ConversionResult resultSkipped = new Tag2Topic_ConversionService.ConversionResult();
         resultSkipped.status = Tag2Topic_ConversionService.ConversionResultStatus.SKIPPED;
-        resultSkipped.contentVersionId = fileId;
+        resultSkipped.contentVersionId = contentVersionId;
+        resultSkipped.contentDocumentId = contentDocumentId;
         resultSkipped.messages.add( 'skipped message' );
 
         Tag2Topic_ConversionService.ConversionResult resultError = new Tag2Topic_ConversionService.ConversionResult();
         resultError.status = Tag2Topic_ConversionService.ConversionResultStatus.ERROR;
-        resultError.contentVersionId = fileId;
+        resultError.contentVersionId = contentVersionId;
+        resultError.contentDocumentId = contentDocumentId;
         resultError.messages.add( 'error message' );
 
         conversionResults.add( resultConverted );
@@ -69,23 +73,26 @@ private class Tag2Topic_LoggerServiceTest {
         // without needing to make multiple queries.
         // Since Status__c is a picklist, then the result will come
         // back in the order the values appear in that field, not necessarily alphabetically.
-        List<Tag2Topic_Log__c> logs = [ SELECT Id, Job_ID__c, File_ID__c, Status__c, Summary__c FROM Tag2Topic_Log__c ORDER BY Status__c ];
+        List<Tag2Topic_Log__c> logs = [ SELECT Id, Job_ID__c, ContentVersion_ID__c, ContentDocument_ID__c, Status__c, Summary__c FROM Tag2Topic_Log__c ORDER BY Status__c ];
         System.debug( logs );
 
         System.assertEquals( conversionResults.size(), logs.size() );
 
         System.assertEquals( jobId, logs[0].Job_ID__c );
-        System.assertEquals( fileId, logs[0].File_ID__c );
+        System.assertEquals( contentVersionId, logs[0].ContentVersion_ID__c );
+        System.assertEquals( contentDocumentId, logs[0].ContentDocument_ID__c );
         System.assertEquals( 'CONVERTED', logs[0].Status__c );
         System.assertEquals( 'converted message', logs[0].Summary__c );
 
         System.assertEquals( jobId, logs[1].Job_ID__c );
-        System.assertEquals( fileId, logs[1].File_ID__c );
+        System.assertEquals( contentVersionId, logs[1].ContentVersion_ID__c );
+        System.assertEquals( contentDocumentId, logs[1].ContentDocument_ID__c );
         System.assertEquals( 'SKIPPED', logs[1].Status__c );
         System.assertEquals( 'skipped message', logs[1].Summary__c );
 
         System.assertEquals( jobId, logs[2].Job_ID__c );
-        System.assertEquals( fileId, logs[2].File_ID__c );
+        System.assertEquals( contentVersionId, logs[2].ContentVersion_ID__c );
+        System.assertEquals( contentDocumentId, logs[2].ContentDocument_ID__c );
         System.assertEquals( 'ERROR', logs[2].Status__c );
         System.assertEquals( 'error message', logs[2].Summary__c );
 

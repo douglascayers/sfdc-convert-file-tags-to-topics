@@ -54,7 +54,8 @@ public with sharing class Tag2Topic_SubmitBatchJobController {
 
                 ID jobId = Database.executeBatch( new Tag2Topic_FilesBatchable( entityIds ), this.batchSize );
 
-                ApexPages.addMessage( new ApexPages.Message( ApexPages.Severity.CONFIRM, 'Batch job ' + jobId + ' submitted.' ) );
+                // Display the 15 character job id to match exactly what the user can search for on the Apex Jobs page in Setup menu
+                ApexPages.addMessage( new ApexPages.Message( ApexPages.Severity.CONFIRM, 'Batch job submitted: ' + String.valueOf( jobId ).left( 15 ) ) );
 
             }
 

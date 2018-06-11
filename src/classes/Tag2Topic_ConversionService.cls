@@ -49,8 +49,9 @@ public without sharing class Tag2Topic_ConversionService {
             // In the method to assign topics to files, it may adjust the status/messages.
             ConversionResult result = new ConversionResult();
             result.status = ConversionResultStatus.SKIPPED;
-            result.messages.add( 'All tags are already assigned as topics: ' + file.TagCsv );
+            result.messages.add( String.isBlank( file.TagCsv ) ? 'File is not assigned any tags' : 'All tags are already assigned as topics: ' + file.TagCsv );
             result.contentVersionId = file.Id;
+            result.contentDocumentId = file.ContentDocumentId;
 
             resultMap.put( file.ContentDocumentId, result );
 
@@ -61,14 +62,13 @@ public without sharing class Tag2Topic_ConversionService {
 
     private void assignTopicsToFiles( List<TopicAssignment> topicsToAssign, Map<ID, ConversionResult> contentDocumentIdToConversionResultMap ) {
 
-        Database.DMLOptions dmo = new Database.DMLOptions();
-        dmo.optAllOrNone = false;
+        Boolean allOrNone = false;
 
-        List<Database.SaveResult> saveResults = Database.insert( topicsToAssign, dmo );
+        List<Database.UpsertResult> upsertResults = Database.upsert( topicsToAssign, allOrNone );
 
-        for ( Integer i = 0; i < saveResults.size(); i++ ) {
+        for ( Integer i = 0; i < upsertResults.size(); i++ ) {
 
-            Database.SaveResult saveResult = saveResults[i];
+            Database.UpsertResult upsertResult = upsertResults[i];
 
             TopicAssignment topicToAssign = topicsToAssign[i];
             ID contentDocumentId = topicToAssign.EntityId;
@@ -82,9 +82,9 @@ public without sharing class Tag2Topic_ConversionService {
                 conversionResult.messages = new Set<String>();
             }
 
-            if ( !saveResult.isSuccess() ) {
+            if ( !upsertResult.isSuccess() ) {
 
-                for ( Database.Error err : saveResult.getErrors() ) {
+                for ( Database.Error err : upsertResult.getErrors() ) {
                     conversionResult.messages.add( 'Error assigning topic ' + topicToAssign.Topic.Name + ': ' + err.getMessage() );
                 }
 
@@ -139,8 +139,7 @@ public without sharing class Tag2Topic_ConversionService {
 
                             topicsToAssign.add( new TopicAssignment(
                                 EntityId = file.ContentDocumentId,
-                                TopicId = topicForTagName.Id,
-                                Topic = topicForTagName // an easy way to pass around the topic name
+                                Topic = new Topic( Name = tagName ) // topic name is unique external id, and this is an easy way to pass around the topic name
                             ));
 
                         } else {
@@ -160,10 +159,6 @@ public without sharing class Tag2Topic_ConversionService {
             } else {
 
                 System.debug( 'skipping file, not assigned any tags' );
-
-                ConversionResult conversionResult = contentDocumentIdToConversionResultMap.get( file.ContentDocumentId );
-                conversionResult.status = ConversionResultStatus.SKIPPED;
-                conversionResult.messages.add( 'File is not assigned any tags' );
 
             }
 
@@ -342,8 +337,11 @@ public without sharing class Tag2Topic_ConversionService {
         // was conversion success? skipped? error?
         public ConversionResultStatus status { get; set; }
 
-        // id of the file whose tags to convert to topics
+        // id of the file version whose tags to convert to topics
         public ID contentVersionId { get; set; }
+
+        // id of the file document whose tags to convert to topics
+        public ID contentDocumentId { get; set; }
 
         // any pertinent message
         public Set<String> messages { get; set; }

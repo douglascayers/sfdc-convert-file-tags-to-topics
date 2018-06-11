@@ -15,15 +15,23 @@
                 <behavior>Readonly</behavior>
                 <field>Job_ID__c</field>
             </layoutItems>
-        </layoutColumns>
-        <layoutColumns>
             <layoutItems>
                 <behavior>Readonly</behavior>
                 <field>Status__c</field>
             </layoutItems>
+        </layoutColumns>
+        <layoutColumns>
             <layoutItems>
                 <behavior>Readonly</behavior>
-                <field>File_ID__c</field>
+                <field>ContentDocument_ID__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Readonly</behavior>
+                <field>ContentVersion_ID__c</field>
+            </layoutItems>
+            <layoutItems>
+                <behavior>Readonly</behavior>
+                <field>File_Link__c</field>
             </layoutItems>
         </layoutColumns>
         <style>TwoColumnsTopToBottom</style>
@@ -76,9 +84,10 @@
     </layoutSections>
     <miniLayout>
         <fields>Name</fields>
-        <fields>Job_ID__c</fields>
-        <fields>File_ID__c</fields>
         <fields>Status__c</fields>
+        <fields>Job_ID__c</fields>
+        <fields>ContentDocument_ID__c</fields>
+        <fields>ContentVersion_ID__c</fields>
         <fields>Summary__c</fields>
     </miniLayout>
     <platformActionList>

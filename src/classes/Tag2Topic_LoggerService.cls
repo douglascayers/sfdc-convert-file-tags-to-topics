@@ -52,7 +52,8 @@ public without sharing class Tag2Topic_LoggerService {
             logs.add( new Tag2Topic_Log__c(
                 Job_ID__c = jobId,
                 Status__c = String.valueOf( result.status ),
-                File_ID__c = result.contentVersionId,
+                ContentVersion_ID__c = result.contentVersionId,
+                ContentDocument_ID__c = result.contentDocumentId,
                 Summary__c = ( messagesAsList.size() > 0 ? messagesAsList[0].abbreviate( maxLength ) : null ),
                 Detail__c = messagesAsString
             ));

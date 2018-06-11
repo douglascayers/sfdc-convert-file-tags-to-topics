@@ -49,9 +49,11 @@
     <compactLayouts>
         <fullName>Default_Compact_Layout</fullName>
         <fields>Name</fields>
-        <fields>Job_ID__c</fields>
-        <fields>File_ID__c</fields>
         <fields>Status__c</fields>
+        <fields>Job_ID__c</fields>
+        <fields>ContentDocument_ID__c</fields>
+        <fields>ContentVersion_ID__c</fields>
+        <fields>File_Link__c</fields>
         <label>Default Compact Layout</label>
     </compactLayouts>
     <deploymentStatus>Deployed</deploymentStatus>
@@ -66,6 +68,30 @@
     <enableSharing>true</enableSharing>
     <enableStreamingApi>true</enableStreamingApi>
     <fields>
+        <fullName>ContentDocument_ID__c</fullName>
+        <description>If the log message is about a specific conversion issue with a record then this is the File Document ID.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>If the log message is about a specific conversion issue with a record then this is the File Document ID.</inlineHelpText>
+        <label>File ID</label>
+        <length>255</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>ContentVersion_ID__c</fullName>
+        <description>If the log message is about a specific conversion issue with a record then this is the File Version ID.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>If the log message is about a specific conversion issue with a record then this is the File Version ID.</inlineHelpText>
+        <label>File Version ID</label>
+        <length>255</length>
+        <required>false</required>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
         <fullName>Detail__c</fullName>
         <externalId>false</externalId>
         <label>Detail</label>
@@ -75,12 +101,11 @@
         <visibleLines>10</visibleLines>
     </fields>
     <fields>
-        <fullName>File_ID__c</fullName>
-        <description>If the log message is about a specific conversion issue with a record then this is the File ID.</description>
+        <fullName>File_Link__c</fullName>
+        <description>Link to view the file.</description>
         <externalId>false</externalId>
-        <inlineHelpText>If the log message is about a specific conversion issue with a record then this is the File ID.</inlineHelpText>
-        <label>File ID</label>
-        <length>255</length>
+        <formula>IF( ISBLANK( ContentDocument_ID__c ), &apos;&apos;, HYPERLINK( &apos;/&apos; &amp; ContentDocument_ID__c, &apos;View File&apos;, &apos;_blank&apos; ) )</formula>
+        <label>File Link</label>
         <required>false</required>
         <trackTrending>false</trackTrending>
         <type>Text</type>
@@ -153,9 +178,10 @@
     <listViews>
         <fullName>All</fullName>
         <columns>NAME</columns>
-        <columns>Job_ID__c</columns>
-        <columns>File_ID__c</columns>
         <columns>Status__c</columns>
+        <columns>Job_ID__c</columns>
+        <columns>ContentDocument_ID__c</columns>
+        <columns>ContentVersion_ID__c</columns>
         <columns>Summary__c</columns>
         <columns>Log_Time__c</columns>
         <filterScope>Everything</filterScope>
@@ -165,7 +191,6 @@
         <fullName>Converted</fullName>
         <columns>NAME</columns>
         <columns>Job_ID__c</columns>
-        <columns>File_ID__c</columns>
         <columns>Status__c</columns>
         <columns>Summary__c</columns>
         <columns>Log_Time__c</columns>
@@ -181,7 +206,6 @@
         <fullName>Errors</fullName>
         <columns>NAME</columns>
         <columns>Job_ID__c</columns>
-        <columns>File_ID__c</columns>
         <columns>Status__c</columns>
         <columns>Summary__c</columns>
         <columns>Log_Time__c</columns>
@@ -197,7 +221,6 @@
         <fullName>Skipped</fullName>
         <columns>NAME</columns>
         <columns>Job_ID__c</columns>
-        <columns>File_ID__c</columns>
         <columns>Status__c</columns>
         <columns>Summary__c</columns>
         <columns>Log_Time__c</columns>
@@ -216,21 +239,25 @@
     </nameField>
     <pluralLabel>Convert File Tags to Topics Logs</pluralLabel>
     <searchLayouts>
-        <customTabListAdditionalFields>Job_ID__c</customTabListAdditionalFields>
-        <customTabListAdditionalFields>File_ID__c</customTabListAdditionalFields>
         <customTabListAdditionalFields>Status__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>Job_ID__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>ContentDocument_ID__c</customTabListAdditionalFields>
+        <customTabListAdditionalFields>ContentVersion_ID__c</customTabListAdditionalFields>
         <customTabListAdditionalFields>Summary__c</customTabListAdditionalFields>
-        <lookupDialogsAdditionalFields>Job_ID__c</lookupDialogsAdditionalFields>
-        <lookupDialogsAdditionalFields>File_ID__c</lookupDialogsAdditionalFields>
         <lookupDialogsAdditionalFields>Status__c</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>Job_ID__c</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>ContentDocument_ID__c</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>ContentVersion_ID__c</lookupDialogsAdditionalFields>
         <lookupDialogsAdditionalFields>Summary__c</lookupDialogsAdditionalFields>
-        <lookupPhoneDialogsAdditionalFields>Job_ID__c</lookupPhoneDialogsAdditionalFields>
-        <lookupPhoneDialogsAdditionalFields>File_ID__c</lookupPhoneDialogsAdditionalFields>
         <lookupPhoneDialogsAdditionalFields>Status__c</lookupPhoneDialogsAdditionalFields>
+        <lookupPhoneDialogsAdditionalFields>Job_ID__c</lookupPhoneDialogsAdditionalFields>
+        <lookupPhoneDialogsAdditionalFields>ContentDocument_ID__c</lookupPhoneDialogsAdditionalFields>
+        <lookupPhoneDialogsAdditionalFields>ContentVersion_ID__c</lookupPhoneDialogsAdditionalFields>
         <lookupPhoneDialogsAdditionalFields>Summary__c</lookupPhoneDialogsAdditionalFields>
-        <searchResultsAdditionalFields>Job_ID__c</searchResultsAdditionalFields>
-        <searchResultsAdditionalFields>File_ID__c</searchResultsAdditionalFields>
         <searchResultsAdditionalFields>Status__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>Job_ID__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>ContentDocument_ID__c</searchResultsAdditionalFields>
+        <searchResultsAdditionalFields>ContentVersion_ID__c</searchResultsAdditionalFields>
         <searchResultsAdditionalFields>Summary__c</searchResultsAdditionalFields>
     </searchLayouts>
     <sharingModel>ReadWrite</sharingModel>

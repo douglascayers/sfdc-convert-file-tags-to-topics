@@ -2,8 +2,6 @@
 
     <apex:slds />
 
-    <apex:sectionHeader title="Files" subtitle="Convert File Tags to Topics"/>
-
     <div class="slds-m-around_small">
 
         <apex:form id="theForm">

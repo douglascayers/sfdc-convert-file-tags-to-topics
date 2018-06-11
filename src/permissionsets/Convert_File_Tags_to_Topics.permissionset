@@ -11,12 +11,22 @@
     <description>Grants permissions to the Tag2Topic objects and pages.</description>
     <fieldPermissions>
         <editable>true</editable>
-        <field>Tag2Topic_Log__c.Detail__c</field>
+        <field>Tag2Topic_Log__c.ContentDocument_ID__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
         <editable>true</editable>
-        <field>Tag2Topic_Log__c.File_ID__c</field>
+        <field>Tag2Topic_Log__c.ContentVersion_ID__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>Tag2Topic_Log__c.Detail__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>Tag2Topic_Log__c.File_Link__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>

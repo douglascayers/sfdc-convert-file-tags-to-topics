@@ -18,6 +18,20 @@ private class Tag2Topic_FilesBatchableTest {
         ContentWorkspace library;
         ContentVersion fileA, fileB, fileC, fileD;
 
+        /*
+         * Note, Topic and PushTopic among other objects that have unique indexes on them and
+         * will throw duplicate value error if test data that you create would duplicate an actual value in the org.
+         * SeeAllData annotation and 'without sharing' have no effect on whether your code will or will not see the org data.
+         * https://salesforce.stackexchange.com/questions/12258/pushtopic-test-duplicate-name-bug
+         * https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_testing_data_access.htm
+         */
+
+        String tagName1 = 'topic1' + System.currentTimeMillis(); // fileB, fileC
+        String tagName2 = 'topic2' + System.currentTimeMillis(); // fileB, fileC
+        String tagName3 = 'topic3' + System.currentTimeMillis(); // fileB
+        String tagName4 = 'topic4' + System.currentTimeMillis(); // fileC
+        String tagName5 = ( 'topic5' + System.currentTimeMillis() ).rightPad( Topic.Name.getDescribe().getLength() + 1, 'x' ); // fileD
+
         // https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_testing_tools_runas.htm
         System.runAs( new User( id = UserInfo.getUserId() ) ) {
 
@@ -81,7 +95,7 @@ private class Tag2Topic_FilesBatchableTest {
             fileB = new ContentVersion(
                 Title = 'FileB',
                 PathOnClient = '/FileB.txt',
-                TagCsv = 'trailhead, astro, fun',
+                TagCsv = String.join( new String[] { tagName1, tagName2, tagName3 }, ',' ),
                 VersionData = Blob.valueOf( 'FileB' ),
                 FirstPublishLocationId = library.Id
             );
@@ -91,7 +105,7 @@ private class Tag2Topic_FilesBatchableTest {
             fileC = new ContentVersion(
                 Title = 'FileC',
                 PathOnClient = '/FileC.txt',
-                TagCsv = 'trailhead, codey, fun',
+                TagCsv = String.join( new String[] { tagName1, tagName2, tagName4 }, ',' ),
                 VersionData = Blob.valueOf( 'FileC' ),
                 FirstPublishLocationId = library.Id
             );
@@ -100,7 +114,7 @@ private class Tag2Topic_FilesBatchableTest {
             fileD = new ContentVersion(
                 Title = 'FileD',
                 PathOnClient = '/FileD.txt',
-                TagCsv = 'x'.repeat( Topic.Name.getDescribe().getLength() + 1 ),
+                TagCsv = tagName5,
                 VersionData = Blob.valueOf( 'FileD' ),
                 FirstPublishLocationId = library.Id
             );
@@ -134,15 +148,15 @@ private class Tag2Topic_FilesBatchableTest {
 
             // assign a topic to only of the files with tags
             // to test the service logic to detect assigned topics
-            Topic topicTrailhead = new Topic(
-                Name = 'Trailhead'
+            Topic topic1 = new Topic(
+                Name = tagName1
             );
 
-            insert topicTrailhead;
+            insert topic1;
 
             TopicAssignment fileB_topicTrailhead = new TopicAssignment(
                 EntityId = fileB.ContentDocumentId,
-                TopicId = topicTrailhead.Id
+                TopicId = topic1.Id
             );
 
             insert fileB_topicTrailhead;
@@ -207,6 +221,18 @@ private class Tag2Topic_FilesBatchableTest {
     @IsTest
     static void test_batch_specific_entities() {
 
+        /*
+         * Note, Topic and PushTopic among other objects that have unique indexes on them and
+         * will throw duplicate value error if test data that you create would duplicate an actual value in the org.
+         * SeeAllData annotation and 'without sharing' have no effect on whether your code will or will not see the org data.
+         * https://salesforce.stackexchange.com/questions/12258/pushtopic-test-duplicate-name-bug
+         * https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_testing_data_access.htm
+         */
+
+        String tagName1 = 'topic1' + System.currentTimeMillis(); // fileA, fileB
+        String tagName2 = 'topic2' + System.currentTimeMillis(); // fileA
+        String tagName3 = 'topic3' + System.currentTimeMillis(); // fileB
+
         Account acctA = new Account(
             Name = 'Account A'
         );
@@ -220,7 +246,7 @@ private class Tag2Topic_FilesBatchableTest {
         ContentVersion fileA = new ContentVersion(
             Title = 'FileA',
             PathOnClient = '/FileA.txt',
-            TagCsv = 'trailhead, astro',
+            TagCsv = String.join( new String[] { tagName1, tagName2 }, ',' ),
             VersionData = Blob.valueOf( 'FileA' ),
             FirstPublishLocationId = acctA.Id
         );
@@ -228,7 +254,7 @@ private class Tag2Topic_FilesBatchableTest {
         ContentVersion fileB = new ContentVersion(
             Title = 'FileB',
             PathOnClient = '/FileB.txt',
-            TagCsv = 'trailhead, codey',
+            TagCsv = String.join( new String[] { tagName1, tagName3 }, ',' ),
             VersionData = Blob.valueOf( 'FileB' )
         );
 
@@ -253,6 +279,17 @@ private class Tag2Topic_FilesBatchableTest {
     @IsTest
     static void test_batch_exception() {
 
+        /*
+         * Note, Topic and PushTopic among other objects that have unique indexes on them and
+         * will throw duplicate value error if test data that you create would duplicate an actual value in the org.
+         * SeeAllData annotation and 'without sharing' have no effect on whether your code will or will not see the org data.
+         * https://salesforce.stackexchange.com/questions/12258/pushtopic-test-duplicate-name-bug
+         * https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_testing_data_access.htm
+         */
+
+        String tagName1 = 'topic1' + System.currentTimeMillis(); // fileA
+        String tagName2 = 'topic2' + System.currentTimeMillis(); // fileA
+
         Account acctA = new Account(
             Name = 'Account A'
         );
@@ -262,7 +299,7 @@ private class Tag2Topic_FilesBatchableTest {
         ContentVersion fileA = new ContentVersion(
             Title = 'FileA',
             PathOnClient = '/FileA.txt',
-            TagCsv = 'trailhead, astro',
+            TagCsv = String.join( new String[] { tagName1, tagName2 }, ',' ),
             VersionData = Blob.valueOf( 'FileA' ),
             FirstPublishLocationId = acctA.Id
         );

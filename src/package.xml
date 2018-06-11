@@ -29,8 +29,10 @@
         <name>CustomApplication</name>
     </types>
     <types>
+        <members>Tag2Topic_Log__c.ContentDocument_ID__c</members>
+        <members>Tag2Topic_Log__c.ContentVersion_ID__c</members>
         <members>Tag2Topic_Log__c.Detail__c</members>
-        <members>Tag2Topic_Log__c.File_ID__c</members>
+        <members>Tag2Topic_Log__c.File_Link__c</members>
         <members>Tag2Topic_Log__c.Job_ID__c</members>
         <members>Tag2Topic_Log__c.Log_Time__c</members>
         <members>Tag2Topic_Log__c.Status__c</members>

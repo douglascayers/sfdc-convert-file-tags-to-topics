@@ -6,6 +6,12 @@
  */
 public class Tag2Topic_Utils {
 
+    /**
+     * Splits a string by a delimiter and trims whitespace from each token.
+     *
+     * Designed for parsing the ContentVersion.TagCsv field,
+     * which stores the tags as a comma-delimited string with spaces.
+     */
     public static List<String> split( String whole, String delimiter ) {
 
         List<String> parts = new List<String>();
@@ -17,9 +23,17 @@ public class Tag2Topic_Utils {
         return parts;
     }
 
+    /**
+     * Designed as a test helper method.
+     */
     public static void assertFileAssignedTopicForEachTag( ID contentDocumentId, List<String> expectedAssignedTopicNames ) {
 
+        System.debug( 'asserting assigned topics for tags for content document ' + contentDocumentId );
+
         List<TopicAssignment> assignments = [ SELECT Id, EntityId, TopicId, Topic.Name FROM TopicAssignment WHERE EntityId = :contentDocumentId ];
+
+        System.debug( 'expectedAssignments: ' + expectedAssignedTopicNames );
+        System.debug( 'actualAssignments: ' + assignments );
 
         System.assertEquals( expectedAssignedTopicNames.size(), assignments.size() );
 
@@ -37,10 +51,16 @@ public class Tag2Topic_Utils {
 
     }
 
+    /**
+     * Designed as a test helper method.
+     */
     public static User newUser( ID profileId, String firstName, String lastName, String email ) {
         return newUser( profileId, null, firstName, lastName, email );
     }
 
+    /**
+     * Designed as a test helper method.
+     */
     public static User newUser( ID profileId, ID roleId, String firstName, String lastName, String email ) {
         Integer rand = Math.round( Math.random() * 1000 );
         return new User(
