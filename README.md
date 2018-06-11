@@ -14,21 +14,9 @@ Inspired by [Jos Dofferhoff](https://success.salesforce.com/_ui/core/chatter/gro
 Documentation and Discussion
 --------------------------
 
-* Read the [wiki page](https://github.com/douglascayers/sfdc-convert-file-tags-to-topics/wiki) for further documentation on Convert File Tags to Topics.
+* Read the [wiki page](https://github.com/douglascayers/sfdc-convert-file-tags-to-topics/wiki) for getting started step-by-steps and screenshots.
 * Read the [FAQ page](https://github.com/douglascayers/sfdc-convert-file-tags-to-topics/wiki/Frequently-Asked-Questions) to help troubleshoot technical issues.
 * Raise well defined issues and ideas via the [Issues feature](https://github.com/douglascayers/sfdc-convert-file-tags-to-topics/issues).
-
-Pre-Requisites
---------------
-
-There are a few items you need to setup before installing and using this app.
-
-1. In Setup, ensure under **Topics for Object Settings** that Topics are enabled for the **Content Document** object.
-2. Add the [Topics component](https://help.salesforce.com/articleView?id=collab_topics_records_admin_LEX.htm&type=5) to the Lightning Record Page for the **Content Document** object. 
-3. As the user performing the tags-to-topics conversion, you must have [membership to the libraries](https://help.salesforce.com/articleView?id=content_workspace_create.htm&type=5) whose files are to be converted
-or you must have at least read [access to the records the files are shared with](https://developer.salesforce.com/docs/atlas.en-us.api.meta/api/sforce_api_objects_contentdocumentlink.htm).
-
-Please see the [instructions in the wiki](https://github.com/douglascayers/sfdc-convert-file-tags-to-topics/wiki/Pre-Requisites-Instructions) for screen shots and step-by-steps.
 
 
 Packaged Release History
