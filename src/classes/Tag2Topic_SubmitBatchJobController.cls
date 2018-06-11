@@ -17,7 +17,7 @@ public with sharing class Tag2Topic_SubmitBatchJobController {
     public static final String OPTION_USER_LIBRARIES = 'USER_LIBRARIES';
     public static final String OPTION_USER_SPECIFIED = 'USER_SPECIFIED';
 
-    public String option { get; set; }
+    public String fileSourceOption { get; set; }
 
     public String entityIdsTextInput { get; set; }
 
@@ -46,7 +46,17 @@ public with sharing class Tag2Topic_SubmitBatchJobController {
 
             Set<ID> entityIds = getEntityIds();
 
-            Database.executeBatch( new Tag2Topic_FilesBatchable( entityIds ), this.batchSize );
+            if ( entityIds == null || entityIds.isEmpty() ) {
+
+                ApexPages.addMessage( new ApexPages.Message( ApexPages.Severity.ERROR, 'Please specify which files to convert.' ) );
+
+            } else {
+
+                ID jobId = Database.executeBatch( new Tag2Topic_FilesBatchable( entityIds ), this.batchSize );
+
+                ApexPages.addMessage( new ApexPages.Message( ApexPages.Severity.CONFIRM, 'Batch job ' + jobId + ' submitted.' ) );
+
+            }
 
         } catch ( Exception e ) {
 
@@ -60,19 +70,21 @@ public with sharing class Tag2Topic_SubmitBatchJobController {
 
     }
 
-    public List<SelectOption> getOptions() {
+    // ----------------------------------------------------------
+
+    public List<SelectOption> getFileSourceOptions() {
 
         List<SelectOption> options = new List<SelectOption>();
 
-        options.add( new SelectOption( OPTION_USER_LIBRARIES, 'Files shared to libraries' ) );
-        options.add( new SelectOption( OPTION_USER_SPECIFIED, 'Files shared to records' ) );
+        options.add( new SelectOption( OPTION_USER_LIBRARIES, 'Files shared to libraries where you are a member' ) );
+        options.add( new SelectOption( OPTION_USER_SPECIFIED, 'Files shared to record ids that you specify' ) );
 
         return options;
     }
 
-    public void handleOptionChange() {
+    public void handleFileSourceOptionChange() {
 
-        System.debug( 'option changed: ' + this.option );
+        System.debug( 'file option changed: ' + this.fileSourceOption );
 
     }
 
@@ -82,11 +94,11 @@ public with sharing class Tag2Topic_SubmitBatchJobController {
 
         Set<ID> entityIds = new Set<ID>();
 
-        if ( this.option == OPTION_USER_LIBRARIES ) {
+        if ( this.fileSourceOption == OPTION_USER_LIBRARIES ) {
 
             entityIds = new Map<ID, ContentWorkspace>([ SELECT Id FROM ContentWorkspace ]).keySet();
 
-        } else if ( this.option == OPTION_USER_SPECIFIED ) {
+        } else if ( this.fileSourceOption == OPTION_USER_SPECIFIED ) {
 
             entityIds = parseUniqueValues( this.entityIdsTextInput );
 

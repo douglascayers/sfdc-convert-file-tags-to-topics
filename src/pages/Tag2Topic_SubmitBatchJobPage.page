@@ -1,40 +1,52 @@
-<apex:page controller="Tag2Topic_SubmitBatchJobController" tabStyle="ContentDocument">
+<apex:page docType="html-5.0" controller="Tag2Topic_SubmitBatchJobController" tabStyle="ContentDocument" lightningStylesheets="true">
 
-    <apex:sectionHeader title="Convert File Tags to Topics"/>
+    <apex:slds/>
 
-    <apex:form id="theForm">
+    <div class="slds-scope">
 
-        <apex:pageMessages id="theMessages"/>
+        <apex:sectionHeader title="Convert File Tags to Topics"/>
 
-        <apex:pageBlock mode="edit">
+        <apex:form id="theForm" styleClass="slds-m-around_small">
 
-            <apex:pageBlockButtons location="bottom">
-                <apex:commandButton action="{!submit}" value=" Submit "/>
-            </apex:pageBlockButtons>
+            <apex:pageMessages id="theMessages"/>
 
-            <apex:pageBlockSection columns="1">
+            <apex:pageBlock mode="edit">
 
-                <apex:selectRadio legendText="Which files to convert?" value="{!option}" layout="pageDirection">
-                    <apex:selectOptions value="{!options}"/>
-                    <apex:actionSupport action="{!handleOptionChange}" event="onchange" rerender="theForm"/>
-                </apex:selectRadio>
+                <apex:pageBlockButtons location="bottom">
+                    <apex:commandButton action="{!submit}" value=" Submit "/>
+                </apex:pageBlockButtons>
 
-            </apex:pageBlockSection>
+                <apex:pageBlockSection columns="1">
 
-            <apex:pageBlockSection rendered="{!option == 'USER_LIBRARIES'}">
+                    <apex:selectRadio label="Which files to convert?" value="{!fileSourceOption}" layout="pageDirection">
+                        <apex:selectOptions value="{!fileSourceOptions}"/>
+                        <apex:actionSupport action="{!handleFileSourceOptionChange}" event="onchange" rerender="theForm"/>
+                    </apex:selectRadio>
 
-                User Libraries
+                </apex:pageBlockSection>
 
-            </apex:pageBlockSection>
+                <apex:pageBlockSection rendered="{!fileSourceOption == 'USER_LIBRARIES'}" columns="1">
 
-            <apex:pageBlockSection rendered="{!option == 'USER_SPECIFIED'}">
+                </apex:pageBlockSection>
 
-                User Specified
+                <apex:pageBlockSection rendered="{!fileSourceOption == 'USER_SPECIFIED'}" columns="1">
 
-            </apex:pageBlockSection>
+                    <apex:pageBlockSectionItem helpText="All delimiters are converted to commas when you submit, but you can separate your list of record ids with commas, semicolons, spaces, \t, \n, or \r">
+                        <apex:outputLabel value="Record IDs"/>
+                        <apex:inputTextarea
+                            label="Record IDs"
+                            value="{!entityIdsTextInput}"
+                            rows="5"
+                            style="width:100%"
+                        />
+                    </apex:pageBlockSectionItem>
 
-        </apex:pageBlock>
+                </apex:pageBlockSection>
 
-    </apex:form>
+            </apex:pageBlock>
+
+        </apex:form>
+
+    </div>
 
 </apex:page>

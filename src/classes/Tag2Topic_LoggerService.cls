@@ -46,14 +46,15 @@ public without sharing class Tag2Topic_LoggerService {
                 'jobId: ' + jobId + ', result: ' + result
             );
 
-            String message = String.join( result.messages, '\n' );
+            List<String> messagesAsList = new List<String>( result.messages );
+            String messagesAsString = String.join( messagesAsList, '\n' );
 
             logs.add( new Tag2Topic_Log__c(
                 Job_ID__c = jobId,
                 Status__c = String.valueOf( result.status ),
                 File_ID__c = result.contentVersionId,
-                Summary__c = message.abbreviate( maxLength ),
-                Detail__c = message
+                Summary__c = ( messagesAsList.size() > 0 ? messagesAsList[0].abbreviate( maxLength ) : null ),
+                Detail__c = messagesAsString
             ));
 
         }
