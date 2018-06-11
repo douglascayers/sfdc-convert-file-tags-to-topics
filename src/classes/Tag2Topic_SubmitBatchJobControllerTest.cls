@@ -8,13 +8,156 @@
 private class Tag2Topic_SubmitBatchJobControllerTest {
 
     @IsTest
-    static void test_controller() {
+    static void test_file_source_options() {
 
         Test.startTest();
 
-        System.assert( false, 'todo' );
+        Tag2Topic_SubmitBatchJobController controller = new Tag2Topic_SubmitBatchJobController();
+
+        List<SelectOption> fileSourceOptions = controller.getFileSourceOptions();
+        System.assertEquals( 2, fileSourceOptions.size() );
+        System.assertEquals( Tag2Topic_SubmitBatchJobController.OPTION_USER_LIBRARIES, fileSourceOptions[0].getValue() );
+        System.assertEquals( Tag2Topic_SubmitBatchJobController.OPTION_USER_SPECIFIED, fileSourceOptions[1].getValue() );
 
         Test.stopTest();
+
+    }
+
+    @IsTest
+    static void test_option_user_libraries() {
+
+        Test.startTest();
+
+        Tag2Topic_SubmitBatchJobController controller = new Tag2Topic_SubmitBatchJobController();
+
+        controller.fileSourceOption = Tag2Topic_SubmitBatchJobController.OPTION_USER_LIBRARIES;
+        controller.handleFileSourceOptionChange();
+
+        Set<ID> entityIds = controller.getEntityIds();
+        Set<ID> expectedEntityIds = new Map<ID, ContentWorkspace>([ SELECT Id FROM ContentWorkspace ]).keySet();
+        System.assert( entityIds.containsAll( expectedEntityIds ) );
+        System.assert( expectedEntityIds.containsAll( entityIds ) );
+
+        controller.submit();
+
+        Test.stopTest();
+
+        Boolean hasJobSubmittedMessage = false;
+        for ( ApexPages.Message msg : ApexPages.getMessages() ) {
+            if ( msg.getSeverity() == ApexPages.Severity.CONFIRM && msg.getSummary().containsIgnoreCase( 'submitted' ) ) {
+                hasJobSubmittedMessage = true;
+            }
+        }
+        System.assert( hasJobSubmittedMessage, 'Job was not submitted successfully' );
+
+    }
+
+    @IsTest
+    static void test_option_user_specified_record_ids() {
+
+        Test.startTest();
+
+        Tag2Topic_SubmitBatchJobController controller = new Tag2Topic_SubmitBatchJobController();
+
+        controller.fileSourceOption = Tag2Topic_SubmitBatchJobController.OPTION_USER_SPECIFIED;
+        controller.handleFileSourceOptionChange();
+
+        controller.entityIdsTextInput = UserInfo.getUserId();
+
+        Set<ID> entityIds = controller.getEntityIds();
+        Set<ID> expectedEntityIds = new Set<ID>{ UserInfo.getUserId() };
+        System.assert( entityIds.containsAll( expectedEntityIds ) );
+        System.assert( expectedEntityIds.containsAll( entityIds ) );
+
+        controller.submit();
+
+        Test.stopTest();
+
+        Boolean hasJobSubmittedMessage = false;
+        for ( ApexPages.Message msg : ApexPages.getMessages() ) {
+            if ( msg.getSeverity() == ApexPages.Severity.CONFIRM && msg.getSummary().containsIgnoreCase( 'submitted' ) ) {
+                hasJobSubmittedMessage = true;
+            }
+        }
+        System.assert( hasJobSubmittedMessage, 'Job was not submitted successfully' );
+
+    }
+
+    @IsTest
+    static void test_missing_required_record_ids() {
+
+        Test.startTest();
+
+        Tag2Topic_SubmitBatchJobController controller = new Tag2Topic_SubmitBatchJobController();
+
+        controller.fileSourceOption = Tag2Topic_SubmitBatchJobController.OPTION_USER_SPECIFIED;
+
+        controller.submit();
+
+        Test.stopTest();
+
+        Boolean hasErrorMessage = false;
+        for ( ApexPages.Message msg : ApexPages.getMessages() ) {
+            if ( msg.getSeverity() == ApexPages.Severity.ERROR && msg.getSummary().containsIgnoreCase( 'Please specify which files to convert' ) ) {
+                hasErrorMessage = true;
+            }
+        }
+        System.assert( hasErrorMessage, 'Should display error message' );
+
+    }
+
+    @IsTest
+    static void test_parse_unique_values() {
+
+        Test.startTest();
+
+        ID idA = Account.SObjectType.getDescribe().keyPrefix + '001'.rightPad( 12, '0' );
+        ID idB = Account.SObjectType.getDescribe().keyPrefix + '002'.rightPad( 12, '0' );
+        ID idC = Account.SObjectType.getDescribe().keyPrefix + '003'.rightPad( 12, '0' );
+
+        Set<ID> expectedIds = new Set<ID>{ idA, idB, idC };
+        Set<ID> actualIds;
+
+        Tag2Topic_SubmitBatchJobController controller = new Tag2Topic_SubmitBatchJobController();
+
+        List<String> delimiters = new List<String>{
+            ' ', ',', ';', ':', '\n', '\r', '\t'
+        };
+
+        for ( String delimiter : delimiters ) {
+
+            actualIds = controller.parseUniqueValues( String.join( new List<ID>( expectedIds ), delimiter ) );
+            System.assert( expectedIds.containsAll( actualIds ) );
+            System.assert( actualIds.containsAll( expectedIds ) );
+
+        }
+
+        Test.stopTest();
+
+    }
+
+    @IsTest
+    static void test_exception() {
+
+        Test.startTest();
+
+        Tag2Topic_SubmitBatchJobController controller = new Tag2Topic_SubmitBatchJobController();
+
+        Exception ex = new System.NullPointerException();
+        ex.setMessage( 'test error' );
+        controller.mockException = ex;
+
+        controller.submit();
+
+        Test.stopTest();
+
+        Boolean hasErrorMessage = false;
+        for ( ApexPages.Message msg : ApexPages.getMessages() ) {
+            if ( msg.getSeverity() == ApexPages.Severity.ERROR && msg.getSummary().containsIgnoreCase( ex.getMessage() ) ) {
+                hasErrorMessage = true;
+            }
+        }
+        System.assert( hasErrorMessage, 'Should display error message' );
 
     }
 

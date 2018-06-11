@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <applicationVisibilities>
+        <application>Convert_File_Tags_to_Topics</application>
+        <visible>true</visible>
+    </applicationVisibilities>
+    <applicationVisibilities>
+        <application>Convert_File_Tags_to_Topics_Lightning</application>
+        <visible>true</visible>
+    </applicationVisibilities>
     <description>Grants permissions to the Tag2Topic objects and pages.</description>
     <fieldPermissions>
         <editable>true</editable>
@@ -42,6 +50,10 @@
         <object>Tag2Topic_Log__c</object>
         <viewAllRecords>true</viewAllRecords>
     </objectPermissions>
+    <tabSettings>
+        <tab>Tag2Topic_Convert_File_Tags_to_Topics</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
     <tabSettings>
         <tab>Tag2Topic_Log__c</tab>
         <visibility>Visible</visibility>

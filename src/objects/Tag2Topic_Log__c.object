@@ -149,7 +149,7 @@
         <type>Text</type>
         <unique>false</unique>
     </fields>
-    <label>Tag2Topic Log</label>
+    <label>Convert File Tags to Topics Log</label>
     <listViews>
         <fullName>All</fullName>
         <columns>NAME</columns>
@@ -214,7 +214,7 @@
         <label>Log Number</label>
         <type>AutoNumber</type>
     </nameField>
-    <pluralLabel>Tag2Topic Logs</pluralLabel>
+    <pluralLabel>Convert File Tags to Topics Logs</pluralLabel>
     <searchLayouts>
         <customTabListAdditionalFields>Job_ID__c</customTabListAdditionalFields>
         <customTabListAdditionalFields>File_ID__c</customTabListAdditionalFields>

@@ -9,13 +9,24 @@
         <members>Tag2Topic_FilesBatchableTest</members>
         <members>Tag2Topic_LoggerService</members>
         <members>Tag2Topic_LoggerServiceTest</members>
+        <members>Tag2Topic_SubmitBatchJobController</members>
+        <members>Tag2Topic_SubmitBatchJobControllerTest</members>
         <members>Tag2Topic_Utils</members>
         <members>Tag2Topic_UtilsTest</members>
         <name>ApexClass</name>
     </types>
     <types>
+        <members>Tag2Topic_SubmitBatchJobPage</members>
+        <name>ApexPage</name>
+    </types>
+    <types>
         <members>Tag2Topic_Log__c.Default_Compact_Layout</members>
         <name>CompactLayout</name>
+    </types>
+    <types>
+        <members>Convert_File_Tags_to_Topics</members>
+        <members>Convert_File_Tags_to_Topics_Lightning</members>
+        <name>CustomApplication</name>
     </types>
     <types>
         <members>Tag2Topic_Log__c.Detail__c</members>
@@ -31,6 +42,7 @@
         <name>CustomObject</name>
     </types>
     <types>
+        <members>Tag2Topic_Convert_File_Tags_to_Topics</members>
         <members>Tag2Topic_Log__c</members>
         <name>CustomTab</name>
     </types>
@@ -52,6 +64,10 @@
     <types>
         <members>Convert_File_Tags_to_Topics</members>
         <name>PermissionSet</name>
+    </types>
+    <types>
+        <members>ContentDocument</members>
+        <name>TopicsForObjects</name>
     </types>
     <version>43.0</version>
 </Package>

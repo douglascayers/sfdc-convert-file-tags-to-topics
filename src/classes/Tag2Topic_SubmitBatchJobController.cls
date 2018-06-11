@@ -90,6 +90,7 @@ public with sharing class Tag2Topic_SubmitBatchJobController {
 
     // ----------------------------------------------------------
 
+    @TestVisible
     private Set<ID> getEntityIds() {
 
         Set<ID> entityIds = new Set<ID>();
@@ -114,6 +115,7 @@ public with sharing class Tag2Topic_SubmitBatchJobController {
      *
      * Designed for identifying the unique set of record ids the user provides in a textarea input field.
      */
+    @TestVisible
     private Set<ID> parseUniqueValues( String text ) {
 
         System.debug( 'parsing unique values: ' + text );
