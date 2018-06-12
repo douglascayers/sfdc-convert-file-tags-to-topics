@@ -110,29 +110,17 @@ private class Tag2Topic_ConversionServiceTest {
 
             System.debug( conversionResult );
 
-            if ( conversionResult.status == Tag2Topic_ConversionService.ConversionResultStatus.CONVERTED ) {
-               countConverted++;
+            switch on conversionResult.status {
+                when CONVERTED {
+                    countConverted++;
+                }
+                when SKIPPED {
+                    countSkipped++;
+                }
+                when ERROR {
+                    countError++;
+                }
             }
-
-            if ( conversionResult.status == Tag2Topic_ConversionService.ConversionResultStatus.SKIPPED ) {
-                countSkipped++;
-            }
-
-            if ( conversionResult.status == Tag2Topic_ConversionService.ConversionResultStatus.ERROR ) {
-                countError++;
-            }
-
-//            switch on conversionResult.status {
-//                when CONVERTED {
-//                    countConverted++;
-//                }
-//                when SKIPPED {
-//                    countSkipped++;
-//                }
-//                when ERROR {
-//                    countError++;
-//                }
-//            }
 
         }
 

@@ -177,29 +177,17 @@ private class Tag2Topic_FilesBatchableTest {
 
                 System.debug( log );
 
-                if ( log.Status__c == 'CONVERTED' ) {
-                   countConverted++;
+                switch on log.Status__c {
+                    when 'CONVERTED' {
+                        countConverted++;
+                    }
+                    when 'SKIPPED' {
+                        countSkipped++;
+                    }
+                    when 'ERROR' {
+                        countError++;
+                    }
                 }
-
-                if ( log.Status__c == 'SKIPPED' ) {
-                    countSkipped++;
-                }
-
-                if ( log.Status__c == 'ERROR' ) {
-                    countError++;
-                }
-
-    //            switch on log.Status__c {
-    //                when 'CONVERTED' {
-    //                    countConverted++;
-    //                }
-    //                when 'SKIPPED' {
-    //                    countSkipped++;
-    //                }
-    //                when 'ERROR' {
-    //                    countError++;
-    //                }
-    //            }
 
             }
 
